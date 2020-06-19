@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">CsvEnglishWorkbook</string>
+    <string name="uiTxtFileName">파일 이름</string>
+    <string name="uiTxtFileSearch">파일 찾아보기</string>
+    <string name="uiTxtStart">시작하기</string>
+    <string name="uiExitBtn">종료</string>
+
+    <string name="uiPrevDirectoryBtn">상위로 이동</string>
+    <string name="uiNewCsvFileBtn">새로 만들기</string>
+
+    <string name="newCsvFileName">새 CSV파일 - </string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FileExplorerActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/currentPathTxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="current"
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/prevDirectoryBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/uiPrevDirectoryBtn"/>
+            <Button
+                android:id="@+id/newCsvFileBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/uiNewCsvFileBtn"/>
+
+        </LinearLayout>
+    </LinearLayout>
+    <ListView
+        android:id="@+id/fileListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </ListView>
+
+</LinearLayout>
