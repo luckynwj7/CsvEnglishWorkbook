@@ -3,12 +3,16 @@ package com.example.csvenglishworkbook;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -37,10 +41,13 @@ public class FileExplorerActivity extends AppCompatActivity {
 
     private int currentExistFileCount;
 
+    private AlertDialogManager alertDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_explorer);
+
         thisActivityIntent = new Intent();
 
         prevDirectoryBtn = findViewById(R.id.prevDirectoryBtn);
@@ -48,12 +55,15 @@ public class FileExplorerActivity extends AppCompatActivity {
         currentPathTxt = findViewById(R.id.currentPathTxt);
         fileListView = findViewById(R.id.fileListView);
 
+        alertDialog = new AlertDialogManager(this);
+
+
         fileArrayList = new ArrayList<String>();
 
         currentPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Test";
         //currentPath = getExternalCacheDir().getAbsolutePath();
-        Log.d("alert","현재경로" + currentPath);
-        Log.d("alert","접근권한" + Environment.getExternalStorageState());
+        Log.d("alert", "현재경로" + currentPath);
+        Log.d("alert", "접근권한" + Environment.getExternalStorageState());
 
 
         prevDirectoryBtn.setOnClickListener(new Button.OnClickListener() {
@@ -74,9 +84,10 @@ public class FileExplorerActivity extends AppCompatActivity {
         fileListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                FileListViewItemClick(adapterView, view, i , l);
+                FileListViewItemClick(adapterView, view, i, l);
             }
         });
+        registerForContextMenu(fileListView);
         RefreshFiles();
 
         setResult(RESULT_OK,thisActivityIntent);
@@ -97,7 +108,7 @@ public class FileExplorerActivity extends AppCompatActivity {
         File file = new File(currentPath, newFileName);
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            fos.write("testStr".getBytes());
+            fos.write("한국어테스트,한국어\ncsv테스트,csv".getBytes());
             fos.close();
             RefreshFiles();
 
@@ -109,19 +120,35 @@ public class FileExplorerActivity extends AppCompatActivity {
 
     }
 
-    private void FileListViewItemClick(AdapterView<?> adapterView, View view, int position, long id){
-        String Name = fileArrayList.get(position);//클릭된 위치의 값을 가져옴
+    private void FileListViewItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+        String clickFileName = fileArrayList.get(position);//클릭된 위치의 값을 가져옴
         //디렉토리이면
-        if(Name.startsWith("[") && Name.endsWith("]")){
-            Name = Name.substring(1, Name.length() - 1);//[]부분을 제거해줌
+        if (clickFileName.startsWith("[") && clickFileName.endsWith("]")) {
+            clickFileName = clickFileName.substring(1, clickFileName.length() - 1);//[]부분을 제거해줌
         }
         //들어가기 위해 /와 터치한 파일 명을 붙여줌
-        String Path = currentPath + "/" + Name;
-        File f = new File(Path);//File 클래스 생성
-        if(f.isDirectory()){//디렉토리면?
-            currentPath = Path;//현재를 Path로 바꿔줌
+        String clickResultFilePath = currentPath + "/" + clickFileName;
+        File resultFile = new File(clickResultFilePath);//File 클래스 생성
+        if (resultFile.isDirectory()) {//디렉토리면?
+            currentPath = clickResultFilePath;//현재를 Path로 바꿔줌
             RefreshFiles();//리프레쉬
-        }else {//디렉토리가 아니면 토스트 메세지를 뿌림
+        } else {
+            // 확장자 비교 작업을 하여 CSV파일만 읽어냄
+            String fileExtension;
+            if (clickFileName.length() > 4) {
+                fileExtension = clickFileName.substring(clickFileName.length() - 4);
+            } else {
+                fileExtension = "";
+            }
+            if (fileExtension.equals(".csv")) {
+                Toast.makeText(this, "성공", Toast.LENGTH_SHORT).show();
+                //파일을 읽음
+                System.out.println(CsvReader.FileReadAndConvertToText(resultFile));
+
+            } else {
+                Toast.makeText(this, "실패", Toast.LENGTH_SHORT).show();
+            }
+            //디렉토리가 아니면 토스트 메세지를 뿌림
             //Toast.makeText(FileExplorerActivity.this, fileArrayList.get(position), 0).show();
         }
     }
@@ -147,8 +174,7 @@ public class FileExplorerActivity extends AppCompatActivity {
                 }
                 fileArrayList.add(Name);//배열리스트에 추가해줌
             }
-        }
-        else{
+        } else {
             currentExistFileCount = 0;
         }
         //다끝나면 리스트뷰를 갱신시킴
@@ -157,12 +183,99 @@ public class FileExplorerActivity extends AppCompatActivity {
     //출처: https://gakari.tistory.com/entry/안드로이드-파일-탐색기-만들기 [가카리의 공부방]
 
 
+    //Context 메뉴로 등록한 View(여기서는 ListView)가 처음 클릭되어 만들어질 때 호출되는 메소드
 
-    private void PutResultIntoIntent(String value){
-        thisActivityIntent.putExtra("pathResult",value);
+    @Override
+
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        // TODO Auto-generated method stub
+        //res폴더의 menu플더안에 xml로 MenuItem추가하기.
+        //mainmenu.xml 파일을 java 객체로 인플레이트(inflate)해서 menu객체에 추가
+        getMenuInflater().inflate(R.menu.file_item, menu);
+        super.onCreateContextMenu(menu, v, menuInfo);
     }
 
-    public FileExplorerActivity(){
+    //Context 메뉴로 등록한 View(여기서는 ListView)가 클릭되었을 때 자동으로 호출되는 메소드
+
+    public boolean onContextItemSelected(MenuItem item) {
+        //AdapterContextMenuInfo
+        //AdapterView가 onCreateContextMenu할때의 추가적인 menu 정보를 관리하는 클래스
+        //ContextMenu로 등록된 AdapterView(여기서는 Listview)의 선택된 항목에 대한 정보를 관리하는 클래스
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        int index = info.position; //AdapterView안에서 ContextMenu를 보여즈는 항목의 위치
+        //선택된 ContextMenu의  아이템아이디를 구별하여 원하는 작업 수행
+        //예제에서는 선택된 ListView의 항목(String 문자열) data와 해당 메뉴이름을 출력함
+        File selectedFile;
+        switch (item.getItemId()) {
+            case R.id.modify:
+                selectedFile = new File(currentPath + "/" + fileArrayList.get(index));
+                selectedTempFile = selectedFile;
+                alertDialog.SetInputText(fileArrayList.get(index));
+                alertDialog.SetOkBtnClickFunc(GetModifyOkClickListener());
+                alertDialog.ShowAlertDialog();
+                break;
+            case R.id.delete:
+                selectedFile = new File(currentPath + "/" + fileArrayList.get(index));
+                selectedFile.delete();
+                Toast.makeText(this, fileArrayList.get(index) + "가 삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                RefreshFiles();
+                break;
+        }
+        return true;
+    }
+    //출처: https://kitesoft.tistory.com/68 [안드로이드 어플 개발]
+
+
+    private File selectedTempFile; // 파일 선택을 위한 임시변수
+
+    private DialogInterface.OnClickListener GetModifyOkClickListener() {
+        return new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                ModifyClickEvent();
+            }
+        };
+    }
+
+
+    private void ModifyClickEvent() {
+        // 클릭 이벤트 시 작동함
+
+        // 파일 확장자 먼저 뽑아냄
+        String fileExtension = "";
+        if (selectedTempFile.length() >= 4) {
+            fileExtension = selectedTempFile.getName().substring(selectedTempFile.getName().length() - 4);
+        }
+        String inputResult = ModifyFileNameCondition(alertDialog.GetInputTxtText(), fileExtension);
+        if (inputResult == "") {
+            Toast.makeText(this, "이름이 수정에 실패했습니다.\n들어갈 수 없는 기호가 있거나 확장자가 바뀌었습니다.", Toast.LENGTH_SHORT).show();
+            selectedTempFile = null;
+            return;
+        }
+        selectedTempFile.renameTo(new File(currentPath + "/" + inputResult));
+        RefreshFiles();
+        Toast.makeText(this, "이름이 수정되었습니다.", Toast.LENGTH_SHORT).show();
+        selectedTempFile = null;
+    }
+
+    private String ModifyFileNameCondition(String input, String extension) {
+        // 바꿀 수 있는 파일 이름에 대한 조건을 참조
+        // ""로 리턴하면 실패했다는 의미
+        if (input.length() <= 0) {
+            // 파일 입력을 아무것도 입력 안했을 경우
+            return "";
+        } else if (input.length() >= 4 && input.substring(input.length() - 4) != extension) {
+            // 확장자가 다를 경우
+            return "";
+        }
+        return input;
+    }
+
+
+    private void PutResultIntoIntent(String value) {
+        thisActivityIntent.putExtra("pathResult", value);
+    }
+
+    public FileExplorerActivity() {
         System.out.println("액티비티 2 생성");
     }
 

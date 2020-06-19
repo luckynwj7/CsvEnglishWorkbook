@@ -9,4 +9,12 @@
     <string name="uiNewCsvFileBtn">새로 만들기</string>
 
     <string name="newCsvFileName">새 CSV파일 - </string>
+
+    <string name="menuModifyName">이름 변경</string>
+    <string name="menuCopyFile">복사</string>
+    <string name="menuCutFile">잘라내기</string>
+    <string name="menuDeleteFile">삭제</string>
+
+    <string name="alertDialogOK">OK</string>
+    <string name="alertDialogCancel">Cancel</string>
 </resources>

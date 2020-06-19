@@ -23,8 +23,6 @@ public class FileSelectActivity extends AppCompatActivity {
     private Button activityExitBtn;
     private TextView selectedFileNameTxtView;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
