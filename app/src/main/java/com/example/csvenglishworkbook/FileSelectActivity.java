@@ -12,16 +12,22 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Console;
+import java.io.File;
 
 public class FileSelectActivity extends AppCompatActivity {
 
     private Intent fileExplorerActivityIntent;
+    private Intent workbookActivityIntent;
 
     private Button fileSearchBtn;
     private Button activityExitBtn;
+    private  Button workbookStartBtn;
     private TextView selectedFileNameTxtView;
+
+    private String selectedFilePath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,9 +37,11 @@ public class FileSelectActivity extends AppCompatActivity {
         RequestMemoryPermission();
 
         fileExplorerActivityIntent = new Intent(this,FileExplorerActivity.class);
+        workbookActivityIntent = new Intent(this, WorkbookActivity.class);
 
         fileSearchBtn = findViewById(R.id.fileSearchBtn);
         activityExitBtn = findViewById(R.id.activityExitBtn);
+        workbookStartBtn = findViewById(R.id.workbookStartBtn);
         selectedFileNameTxtView = findViewById(R.id.selectedFileNameTxtView);
 
 
@@ -56,19 +64,31 @@ public class FileSelectActivity extends AppCompatActivity {
             }
         });
 
+        workbookStartBtn.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(selectedFilePath == null){
+                    Toast.makeText(getApplicationContext(), "선택된 파일이 없습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                else{
+                    onPause();
+                    workbookActivityIntent.putExtra("filePullPath",selectedFilePath);
+                    workbookActivityIntent.putExtra("fileName", selectedFileNameTxtView.getText());
+                    startActivity(workbookActivityIntent);
+                }
+            }
+        });
+
     }
 
-
-
-    public void OnResumeAct(){
-        onResume();
-    }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==1){
             if(resultCode==RESULT_OK){
-                selectedFileNameTxtView.setText(data.getStringExtra("pathResult"));
+                selectedFileNameTxtView.setText(data.getStringExtra("fileName"));
+                selectedFilePath = data.getStringExtra("filePullPath");
             }
             else{
                 System.out.println("실패했음");

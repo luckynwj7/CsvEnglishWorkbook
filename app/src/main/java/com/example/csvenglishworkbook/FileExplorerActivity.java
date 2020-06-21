@@ -141,12 +141,13 @@ public class FileExplorerActivity extends AppCompatActivity {
                 fileExtension = "";
             }
             if (fileExtension.equals(".csv")) {
-                Toast.makeText(this, "성공", Toast.LENGTH_SHORT).show();
-                //파일을 읽음
-                System.out.println(CsvReader.FileReadAndConvertToText(resultFile));
+                thisActivityIntent.putExtra("filePullPath", clickResultFilePath); // 파일 전체 경로를 전달
+                thisActivityIntent.putExtra("fileName", clickFileName.replace(".csv","")); // 파일 이름을 전달
+                setResult(RESULT_OK,thisActivityIntent); // 인텐트 적용
+                finish(); // 창 종료
 
             } else {
-                Toast.makeText(this, "실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "선택할 수 없는 파일입니다.", Toast.LENGTH_SHORT).show();
             }
             //디렉토리가 아니면 토스트 메세지를 뿌림
             //Toast.makeText(FileExplorerActivity.this, fileArrayList.get(position), 0).show();
@@ -268,11 +269,6 @@ public class FileExplorerActivity extends AppCompatActivity {
             return "";
         }
         return input;
-    }
-
-
-    private void PutResultIntoIntent(String value) {
-        thisActivityIntent.putExtra("pathResult", value);
     }
 
     public FileExplorerActivity() {
