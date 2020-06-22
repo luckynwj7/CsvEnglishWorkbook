@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 
-import java.util.*;
 import java.util.ArrayList;
 
 public class CsvReader {
@@ -74,6 +73,7 @@ public class CsvReader {
     }
 
     public static ArrayList<ArrayList<String>> GetSplitDataArrayList(File file){
+        // 최종적으로 arrayList를 받는 함수
         ArrayList<ArrayList<String>> resultList = new ArrayList<ArrayList<String>>();
         String convertText = FileReadAndConvertToText(file);
         ArrayList<String> splitRowData = GetRowSplitTextList(convertText);
@@ -84,7 +84,7 @@ public class CsvReader {
         return resultList;
     }
 
-    public static void SaveArrayListInDataBase(ArrayList<ArrayList<String>> inputArray, WorkbookSQLiteOpenHelper db){
+    public static void SaveArrayListInDataBase(ArrayList<ArrayList<String>> inputArray, CustomSQLiteOpenHelper db){
         // db에 List를 저장해주는 함수
         // 넣을 때는 전부 string형태로 넣어줌. 내부에서 알아서 integer로 변환이 되어 DB에 저장됨
         for (ArrayList<String> outterList:inputArray) {

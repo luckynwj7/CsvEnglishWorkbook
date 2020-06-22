@@ -3,12 +3,10 @@ package com.example.csvenglishworkbook;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 
 import java.io.File;
 
-import java.util.*;
 import java.util.ArrayList;
 
 public class WorkbookActivity extends AppCompatActivity {
@@ -20,7 +18,7 @@ public class WorkbookActivity extends AppCompatActivity {
     private String fileName;
     private File selectedFile;
 
-    private WorkbookSQLiteOpenHelper myWorkbookSQLiteOpenHelper; // SQLite DB관리
+    private CustomSQLiteOpenHelper workbookSQLiteOpenHelper; // SQLite DB관리
 
 
     @Override
@@ -33,14 +31,14 @@ public class WorkbookActivity extends AppCompatActivity {
         filePullPath = thisActivityGetIntent.getExtras().getString("filePullPath");
         selectedFile = new File(filePullPath);
 
-        myWorkbookSQLiteOpenHelper = new WorkbookSQLiteOpenHelper(this,WorkbookSQLiteOpenHelper.workbookDBName,1);
+        workbookSQLiteOpenHelper = new CustomSQLiteOpenHelper(this, CustomSQLiteOpenHelper.workbookDBName,1);
 
-        myWorkbookSQLiteOpenHelper.ExternalDropTable();
-        myWorkbookSQLiteOpenHelper.ExternalCreateTable();
+        workbookSQLiteOpenHelper.ExternalDropTable();
+        workbookSQLiteOpenHelper.ExternalCreateTable();
 
         ArrayList<ArrayList<String>> readCsvList = CsvReader.GetSplitDataArrayList(selectedFile);
-        CsvReader.SaveArrayListInDataBase(readCsvList, myWorkbookSQLiteOpenHelper); // StringArrayList를 Database에 저장
-        myWorkbookSQLiteOpenHelper.ShowAllData();//디버깅전용
+        CsvReader.SaveArrayListInDataBase(readCsvList, workbookSQLiteOpenHelper); // StringArrayList를 Database에 저장
+        workbookSQLiteOpenHelper.ShowAllData();//디버깅전용
 
 
 
@@ -49,6 +47,6 @@ public class WorkbookActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myWorkbookSQLiteOpenHelper.ExternalDropTable();
+        workbookSQLiteOpenHelper.ExternalDropTable();
     }
 }

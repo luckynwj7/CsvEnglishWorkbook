@@ -14,7 +14,7 @@ import android.icu.lang.UCharacter;
 
 import androidx.annotation.Nullable;
 
-public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
+public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public final static String workbookDBName = "workbook";
 
@@ -28,7 +28,7 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
     private SQLiteDatabase readableDB;
 
 
-    public WorkbookSQLiteOpenHelper(Context context, String dataTableName, int dbVersion) {
+    public CustomSQLiteOpenHelper(Context context, String dataTableName, int dbVersion) {
         super(context, dataTableName, null, dbVersion);
         System.out.println(dataTableName + "DB 생성 호출");
         this.dataTableName = dataTableName;
@@ -122,9 +122,9 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
             return false;
         }
 
-        // 맨 앞에 null을 넣은 배열을 다시 생성함
+        // 맨 앞에 최대행수를 넣은 배열을 다시 생성함
         String[] convertInputColumn = new String[inputColumn.length+1];
-        convertInputColumn[0] = null;
+        convertInputColumn[0] = Integer.toString(DataTableRowCount()+1);
         for(int index=0;index<inputColumn.length;index++){
             convertInputColumn[1+index] = inputColumn[index];
         }
@@ -162,6 +162,17 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public void DeleteData(Integer rowIndex){
         writableDB.delete(dataTableName, columnList.get(0) + " = ?", new String[] {rowIndex.toString()});
+        ReNameRowIndex(rowIndex);
+    }
+
+    private void ReNameRowIndex(int deleteNum){
+        // rowIndex를 다시 매겨주는 함수
+        int maxRowCount = DataTableRowCount();
+        for(int rowIndex=deleteNum;rowIndex<=maxRowCount;rowIndex++){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(columnList.get(0), rowIndex);
+            writableDB.update(dataTableName, contentValues, columnList.get(0) + " = ?", new String[] {Integer.toString(rowIndex+1)});
+        }
     }
 
     public ArrayList<Object> SelectRowAllData(Integer rowIndex) {
