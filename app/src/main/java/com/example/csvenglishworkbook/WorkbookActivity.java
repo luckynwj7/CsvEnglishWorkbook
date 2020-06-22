@@ -8,6 +8,9 @@ import android.os.Bundle;
 
 import java.io.File;
 
+import java.util.*;
+import java.util.ArrayList;
+
 public class WorkbookActivity extends AppCompatActivity {
 
 
@@ -35,11 +38,11 @@ public class WorkbookActivity extends AppCompatActivity {
         myWorkbookSQLiteOpenHelper.ExternalDropTable();
         myWorkbookSQLiteOpenHelper.ExternalCreateTable();
 
-        myWorkbookSQLiteOpenHelper.InsertData("a","b",1);
-        myWorkbookSQLiteOpenHelper.InsertData("c","d",2);
-        myWorkbookSQLiteOpenHelper.UpdateData(1,"e","f",0);
-        String result = myWorkbookSQLiteOpenHelper.getResult();
-        System.out.println(result);
+        ArrayList<ArrayList<String>> readCsvList = CsvReader.GetSplitDataArrayList(selectedFile);
+        CsvReader.SaveArrayListInDataBase(readCsvList, myWorkbookSQLiteOpenHelper); // StringArrayList를 Database에 저장
+        myWorkbookSQLiteOpenHelper.ShowAllData();//디버깅전용
+
+
 
     }
 

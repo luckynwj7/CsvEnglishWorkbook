@@ -8,6 +8,8 @@
     <string name="uiPrevDirectoryBtn">상위로 이동</string>
     <string name="uiNewCsvFileBtn">새로 만들기</string>
 
+    <string name="uiOtherFileSelectBtn">다른 파일 선택</string>
+
     <string name="newCsvFileName">새 CSV파일 - </string>
 
     <string name="menuModifyName">이름 변경</string>

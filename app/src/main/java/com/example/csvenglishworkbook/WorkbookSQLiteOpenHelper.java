@@ -6,6 +6,10 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.*;
+import java.util.ArrayList;
+
 import android.icu.lang.UCharacter;
 
 import androidx.annotation.Nullable;
@@ -92,24 +96,38 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
         writableDB.delete(dataTableName, columnPrimary + " = ?", new String[] {wordId.toString()});
     }
 
-    public String getResult() {
+    public ArrayList<Object> SelectRowAllData(Integer wordId) {
         // 읽기가 가능하게 DB 열기
-        String result = "";
+        ArrayList<Object> resultList = new ArrayList<>();
 
-        // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 모든 데이터 출력
-        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName, null);
-        while (cursor.moveToNext()) {
-            result += cursor.getInt(0)
-                    + " : "
-                    + cursor.getString(1)
-                    + " : "
-                    + cursor.getString(2)
-                    + " : "
-                    + cursor.getInt(3)
-                    + "\n";
-        }
+        // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 데이터 출력
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName + " WHERE " + columnPrimary + " = " + wordId.toString(), null);
+        cursor.moveToFirst();
+        resultList.add(cursor.getInt(0));
+        resultList.add(cursor.getString(1));
+        resultList.add(cursor.getString(2));
+        resultList.add(cursor.getInt(3));
+
+        return resultList;
+    }
+
+    public int DataTableRowCount(){
+        // 전채 행 수를 반환하는 함수
+        int result;
+        Cursor cursor = readableDB.rawQuery("SELECT COUNT(*) FROM " + dataTableName, null);
+        cursor.moveToFirst();
+        result = cursor.getInt(0);
         return result;
     }
+
+    public void ShowAllData(){
+        // 디버깅 전용 함수
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName, null);
+        while(cursor.moveToNext()){
+            System.out.println(cursor.getInt(0) + ":" + cursor.getString(1) + ":" + cursor.getString(2) + ":" + cursor.getInt(3));
+        }
+    }
+
 
     private ContentValues CreateContentValue(@Nullable Integer wordId, @Nullable String viewingWord, @Nullable String hidingWord, @Nullable Integer rememberFlag){
         ContentValues contentValues = new ContentValues();
