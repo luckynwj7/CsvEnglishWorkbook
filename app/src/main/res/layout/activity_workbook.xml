@@ -21,6 +21,7 @@
         android:orientation="horizontal"
         android:layout_weight="1">
         <TextView
+            android:id="@+id/fileNameTxtView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -41,9 +42,10 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:autoSizeTextType="uniform"
-            android:text="진행상황 : ">
+            android:text="@string/uiJobProgressTxtView">
         </TextView>
         <TextView
+            android:id="@+id/currentJobStatusTxtView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -58,6 +60,7 @@
             android:text="/">
         </TextView>
         <TextView
+            android:id="@+id/allJobStatusTxtView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -78,9 +81,10 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:autoSizeTextType="uniform"
-            android:text="못외운 수 : ">
+            android:text="@string/uiNoneMemorizeTxtView">
         </TextView>
         <TextView
+            android:id="@+id/noneMemorizeTxtView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -101,14 +105,15 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:autoSizeTextType="uniform"
-            android:text="외운 수 : ">
+            android:text="@string/uiMemorizeTxtView">
         </TextView>
         <TextView
+            android:id="@+id/memorizeTxtView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:autoSizeTextType="uniform"
-        android:text="0">
+            android:text="0">
         </TextView>
 
     </LinearLayout>
@@ -120,6 +125,7 @@
         android:layout_weight="13"
         android:weightSum="2">
         <TextView
+            android:id="@+id/viewingWordTxtView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -131,6 +137,7 @@
             android:text="보기모드">
         </TextView>
         <TextView
+            android:id="@+id/hidingWordTxtView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
@@ -150,6 +157,7 @@
         android:layout_weight="2"
         android:weightSum="2">
         <Button
+            android:id="@+id/noneMemorizeBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:autoSizeTextType="uniform"
@@ -158,6 +166,7 @@
             android:text="못외움">
         </Button>
         <Button
+            android:id="@+id/memorizeBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -172,29 +181,40 @@
         android:layout_height="0dp"
         android:orientation="horizontal"
         android:layout_weight="2"
-        android:weightSum="4">
+        android:weightSum="5">
         <Button
+            android:id="@+id/mixStartBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="섞어서 다시 시작">
+            android:text="@string/uiMixStartBtn">
+        </Button>
+        <Button
+            android:id="@+id/fullSpreadBtn"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="@string/uiFullSpreadBtn">
         </Button>
         <Button
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="전부 펼쳐보기">
+            android:text="새로운 데이터 삽입">
         </Button>
         <Button
+            android:id="@+id/wordDeleteBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
             android:layout_weight="1"
-            android:text="보고있는 데이터 삭제">
+            android:text="@string/uiWordDeleteBtn">
         </Button>
         <Button
+            android:id="@+id/otherFileSelectBtn"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="5dp"
