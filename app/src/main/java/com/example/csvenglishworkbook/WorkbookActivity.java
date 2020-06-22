@@ -33,7 +33,7 @@ public class WorkbookActivity extends AppCompatActivity {
         filePullPath = thisActivityGetIntent.getExtras().getString("filePullPath");
         selectedFile = new File(filePullPath);
 
-        myWorkbookSQLiteOpenHelper = new WorkbookSQLiteOpenHelper(this);
+        myWorkbookSQLiteOpenHelper = new WorkbookSQLiteOpenHelper(this,WorkbookSQLiteOpenHelper.workbookDBName,1);
 
         myWorkbookSQLiteOpenHelper.ExternalDropTable();
         myWorkbookSQLiteOpenHelper.ExternalCreateTable();

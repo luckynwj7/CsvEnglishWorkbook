@@ -15,24 +15,52 @@ import android.icu.lang.UCharacter;
 import androidx.annotation.Nullable;
 
 public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
-    private static final int dbVersion = 1;
-    private static final String dataTableName = "workbook";
 
-    private static final String columnPrimary = "WordId";
-    private static final String column2 = "ViewingWord";
-    private static final String column3 = "HidingWord";
-    private static final String column4 = "RememberFlag";
+    public final static String workbookDBName = "workbook";
+
+    private String dataTableName;
+    private int dbVersion;
+
+    private ArrayList<String> columnList;
+    private ArrayList<String> columnType;
 
     private SQLiteDatabase writableDB;
     private SQLiteDatabase readableDB;
 
 
-    public WorkbookSQLiteOpenHelper(Context context) {
+    public WorkbookSQLiteOpenHelper(Context context, String dataTableName, int dbVersion) {
         super(context, dataTableName, null, dbVersion);
-        System.out.println("DB 생성 호출");
+        System.out.println(dataTableName + "DB 생성 호출");
+        this.dataTableName = dataTableName;
+        this.dbVersion = dbVersion;
 
         writableDB = this.getWritableDatabase();
         readableDB = this.getReadableDatabase();
+
+        columnList = new ArrayList<String>();
+        columnType = new ArrayList<String>();
+        CreateColumn();
+
+    }
+
+    private void CreateColumn(){
+        // 워크북 이름에 따라 필요한 컬럼 생성
+
+        columnList.add("RowIndex");
+        columnType.add("INTEGER");
+        // 기본 키가 되는 속성은 어느 테이블 이름이던 고정으로 달아놓음
+        if(dataTableName == workbookDBName){
+            columnList.add("ViewingWord");
+            columnList.add("HidingWord");
+            columnList.add("RememberFlag");
+
+            columnType.add("TEXT");
+            columnType.add("TEXT");
+            columnType.add("INTEGER");
+        }
+        else{
+            System.out.println("유효하지 않은 DB이름");
+        }
     }
 
     @Override
@@ -48,12 +76,19 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
 
     private void CreateTable(SQLiteDatabase db)
     {
-        String sql = "CREATE TABLE IF NOT EXISTS " + dataTableName + "(" +
-                columnPrimary + " INTEGER PRIMARY KEY AUTOINCREMENT" + "," +
-                column2 + " TEXT" + "," +
-                column3 + " TEXT" + "," +
-                column4 + " INTEGER" +
-                ")";
+        String sql = null;
+        if(dataTableName == workbookDBName){
+            sql = "CREATE TABLE IF NOT EXISTS " + dataTableName + "(" +
+                    columnList.get(0) + " " + columnType.get(0) + " PRIMARY KEY AUTOINCREMENT" + "," +
+                    columnList.get(1) + " " + columnType.get(1) + "," +
+                    columnList.get(2) + " " + columnType.get(2) + "," +
+                    columnList.get(3) + " " + columnType.get(3) +
+                    ")";
+        }
+        else{
+            System.out.println("유효하지 않은 DB이름");
+            return;
+        }
         SqlExec(db,sql);
     }
 
@@ -63,7 +98,14 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     private void DropTable(SQLiteDatabase db){
-        String sql = "DROP TABLE IF EXISTS " + dataTableName;
+        String sql = null;
+        if(dataTableName == workbookDBName){
+            sql = "DROP TABLE IF EXISTS " + dataTableName;
+        }
+        else{
+            System.out.println("유효하지 않은 DB이름");
+            return;
+        }
         SqlExec(db,sql);
     }
 
@@ -72,9 +114,22 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
         DropTable(writableDB);
     }
 
-    public boolean InsertData(@Nullable String viewingWord, @Nullable String hidingWord, @Nullable Integer rememberFlag){
+    public boolean InsertData(String...inputColumn){
         System.out.println("DB INSERT INTO 실행");
-        ContentValues contentValues = CreateContentValue(null, viewingWord, hidingWord, rememberFlag);
+        // 맨 처음 인자는 주지 않아야 됨. 키는 삽입되지 아니하며 자동으로 1씩 증가하도록 만듬. 예를 들어 컬럼이 4개라면 맨 앞의 ID를 제외한 3개를 집어넣야 함
+        if(inputColumn.length != columnList.size()-1){
+            System.out.println("매개변수 갯수가 맞지 않아 거절함");
+            return false;
+        }
+
+        // 맨 앞에 null을 넣은 배열을 다시 생성함
+        String[] convertInputColumn = new String[inputColumn.length+1];
+        convertInputColumn[0] = null;
+        for(int index=0;index<inputColumn.length;index++){
+            convertInputColumn[1+index] = inputColumn[index];
+        }
+
+        ContentValues contentValues = CreateContentValue(convertInputColumn);
         long result = writableDB.insert(dataTableName, null, contentValues);
 
         if(result == -1){
@@ -85,34 +140,50 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void UpdateData(Integer wordId, @Nullable String viewingWord, @Nullable String hidingWord, @Nullable Integer rememberFlag){
+    public void UpdateData(Integer rowIndex, String...inputColumn){
+        // 맨 처음 인수로는 id를 받음. 이와 일치해야 함
         System.out.println("DB UPDATE 실행");
-        ContentValues contentValues = CreateContentValue(null, viewingWord, hidingWord, rememberFlag);
 
-        writableDB.update(dataTableName, contentValues, columnPrimary + " = ?", new String[] {wordId.toString()});
+        if(inputColumn.length != columnList.size()-1){
+            System.out.println("매개변수 갯수가 맞지 않아 거절함");
+            return;
+        }
+
+        // 맨 앞에 기본키를를 넣은 배열을 다시 생성함
+        String[] convertInputColumn = new String[inputColumn.length+1];
+        convertInputColumn[0] = rowIndex.toString();
+        for(int index=0;index<inputColumn.length;index++){
+            convertInputColumn[1+index] = inputColumn[index];
+        }
+
+        ContentValues contentValues = CreateContentValue(convertInputColumn);
+        writableDB.update(dataTableName, contentValues, columnList.get(0) + " = ?", new String[] {convertInputColumn[0]});
     }
 
-    public void DeleteData(Integer wordId){
-        writableDB.delete(dataTableName, columnPrimary + " = ?", new String[] {wordId.toString()});
+    public void DeleteData(Integer rowIndex){
+        writableDB.delete(dataTableName, columnList.get(0) + " = ?", new String[] {rowIndex.toString()});
     }
 
-    public ArrayList<Object> SelectRowAllData(Integer wordId) {
+    public ArrayList<Object> SelectRowAllData(Integer rowIndex) {
         // 읽기가 가능하게 DB 열기
         ArrayList<Object> resultList = new ArrayList<>();
 
         // DB에 있는 데이터를 쉽게 처리하기 위해 Cursor를 사용하여 테이블에 있는 데이터 출력
-        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName + " WHERE " + columnPrimary + " = " + wordId.toString(), null);
+        Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName + " WHERE " + columnList.get(0) + " = " + rowIndex.toString(), null);
         cursor.moveToFirst();
-        resultList.add(cursor.getInt(0));
-        resultList.add(cursor.getString(1));
-        resultList.add(cursor.getString(2));
-        resultList.add(cursor.getInt(3));
-
+        for(int index=0;index<columnList.size();index++){
+            if(columnType.get(index) == "TEXT"){
+                resultList.add(cursor.getString(index));
+            }
+            else if(columnType.get(index) == "INTEGER"){
+                resultList.add(cursor.getInt(index));
+            }
+        }
         return resultList;
     }
 
     public int DataTableRowCount(){
-        // 전채 행 수를 반환하는 함수
+        // 전체 행 수를 반환하는 함수
         int result;
         Cursor cursor = readableDB.rawQuery("SELECT COUNT(*) FROM " + dataTableName, null);
         cursor.moveToFirst();
@@ -122,26 +193,36 @@ public class WorkbookSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public void ShowAllData(){
         // 디버깅 전용 함수
+        String result = "";
         Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName, null);
         while(cursor.moveToNext()){
-            System.out.println(cursor.getInt(0) + ":" + cursor.getString(1) + ":" + cursor.getString(2) + ":" + cursor.getInt(3));
+            for(int index=0;index<columnList.size();index++){
+                if(columnType.get(index) == "TEXT"){
+                    result += cursor.getString(index);
+                    result += ":";
+                }
+                else if(columnType.get(index) == "INTEGER"){
+                    result += cursor.getInt(index);
+                    result += ":";
+                }
+            }
+            result+="\n";
         }
+        System.out.println(result);
     }
 
 
-    private ContentValues CreateContentValue(@Nullable Integer wordId, @Nullable String viewingWord, @Nullable String hidingWord, @Nullable Integer rememberFlag){
+    private ContentValues CreateContentValue(String...inputColumn){
         ContentValues contentValues = new ContentValues();
-        if(wordId != null){
-            contentValues.put(columnPrimary, viewingWord);
-        }
-        if(viewingWord != null){
-            contentValues.put(column2, viewingWord);
-        }
-        if(hidingWord != null){
-            contentValues.put(column3, hidingWord);
-        }
-        if(rememberFlag != null){
-            contentValues.put(column4, rememberFlag);
+        for(int index = 0; index<columnList.size();index++){
+            if(inputColumn[index]!=null){
+                if(columnType.get(index) == "TEXT"){
+                    contentValues.put(columnList.get(index), inputColumn[index]);
+                }
+                else if (columnType.get(index) == "INTEGER"){
+                    contentValues.put(columnList.get(index), Integer.parseInt(inputColumn[index]));
+                }
+            }
         }
         return contentValues;
     }

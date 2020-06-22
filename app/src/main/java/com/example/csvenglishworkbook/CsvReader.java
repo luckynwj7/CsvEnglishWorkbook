@@ -86,13 +86,14 @@ public class CsvReader {
 
     public static void SaveArrayListInDataBase(ArrayList<ArrayList<String>> inputArray, WorkbookSQLiteOpenHelper db){
         // db에 List를 저장해주는 함수
+        // 넣을 때는 전부 string형태로 넣어줌. 내부에서 알아서 integer로 변환이 되어 DB에 저장됨
         for (ArrayList<String> outterList:inputArray) {
             System.out.println("집어 넣을 것들 : " + outterList.get(0) + ":" + outterList.get(1));
             if(outterList.get(2).length()==0){
-                db.InsertData(outterList.get(0),outterList.get(1),0);
+                db.InsertData(outterList.get(0),outterList.get(1),"0");
             }
             else{
-                db.InsertData(outterList.get(0),outterList.get(1),Integer.parseInt(outterList.get(2)));
+                db.InsertData(outterList.get(0),outterList.get(1),outterList.get(2));
             }
         }
     }
