@@ -1,12 +1,18 @@
 package com.example.csvenglishworkbook;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Message;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 
@@ -41,13 +47,21 @@ public class WorkbookActivity extends AppCompatActivity {
     private TextView viewingWordTxtView;
     private TextView hidingWordTxtView;
     private String realHidingWord; // 진짜로 숨기고 있는 텍스트
-    private Button otherFileSelectBtn;
+
+    private TextView currentJobStatusTxtView;
+    private TextView allJobStatusTxtView;
+
     private TextView noneMemorizeTxtView;
     private TextView memorizeTxtView;
+    private Button noneMemorizeBtn;
+    private Button memorizeBtn;
 
     private ArrayList<Integer> randomIndexArray;
+    private int currentViewIndex;
 
     private int dataTableRowCount;
+
+    private boolean maxJobFlag; //모든 작업을 끝마쳤을 경우 외움/못외움을 진행하지 못하도록 함
 
 
     @Override
@@ -55,6 +69,7 @@ public class WorkbookActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workbook);
         workbookActivityOpenFlag = true;
+        maxJobFlag=false;
 
 
         thisActivityGetIntent = getIntent();
@@ -65,10 +80,16 @@ public class WorkbookActivity extends AppCompatActivity {
         workbookSQLiteOpenHelper = FileSelectActivity.GetWorkbookSQLiteOpenHelper();
         dataTableRowCount = workbookSQLiteOpenHelper.DataTableRowCount();
         ReadCsvFileAndWriteDB();
-        randomIndexArray = GetRandomNoneMemorizeList();
+
 
         fileNameTxtView = findViewById(R.id.fileNameTxtView);
         fileNameTxtView.setText(fileName);
+
+        currentJobStatusTxtView = findViewById(R.id.currentJobStatusTxtView);
+        currentJobStatusTxtView.setText(Integer.toString(GetCompleteJobCounting()));
+
+        allJobStatusTxtView = findViewById(R.id.allJobStatusTxtView);
+        allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
 
         memorizeTxtView = findViewById(R.id.memorizeTxtView);
         noneMemorizeTxtView = findViewById(R.id.noneMemorizeTxtView);
@@ -82,18 +103,74 @@ public class WorkbookActivity extends AppCompatActivity {
             }
         });
 
-        otherFileSelectBtn = findViewById(R.id.otherFileSelectBtn);
-        otherFileSelectBtn.setOnClickListener(new View.OnClickListener() {
+        noneMemorizeBtn = findViewById(R.id.noneMemorizeBtn);
+        noneMemorizeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                workbookActivityOpenFlag = false;
-                finish();
+                // 못외운 상태는 2를 저장함
+                if(maxJobFlag){
+                    RandomGetAndStart();
+                    return;
+                }
+                workbookSQLiteOpenHelper.UpdateData(randomIndexArray.get(currentViewIndex),null,null,"2");
+                int currentCount = Integer.parseInt(noneMemorizeTxtView.getText().toString());
+                noneMemorizeTxtView.setText(Integer.toString(currentCount+1));
+                ViewNextCount();
             }
         });
 
-        AdjustMemorizeWordCounting();
-        ShowWordFromRowIndex(randomIndexArray.get(0));
+        memorizeBtn = findViewById(R.id.memorizeBtn);
+        memorizeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            // 외운 상태는 1을 저장함
+            public void onClick(View view) {
+                if(maxJobFlag){
+                    RandomGetAndStart();
+                    return;
+                }
+                workbookSQLiteOpenHelper.UpdateData(randomIndexArray.get(currentViewIndex),null,null,"1");
+                int currentCount = Integer.parseInt(memorizeTxtView.getText().toString());
+                memorizeTxtView.setText(Integer.toString(currentCount+1));
+                ViewNextCount();
+            }
+        });
+
+        AdjustMemorizeWordCounting(); // 외운 횟수 및 못외운 횟수를 조정하고 시작함
+        RandomGetAndStart();
     }
+
+    private void RandomGetAndStart(){
+        // 랜덤한 Row를 받아서 실행하게 하는 함수. 랜덤 배열을 0부터 시작시킴
+        randomIndexArray = GetRandomNoneMemorizeList(); // 랜덤 배열을 새로 저장함
+        // 첫 시작화면을 띄움
+        if(randomIndexArray.size()<=0){
+            maxJobFlag=true;
+            ShowWordFromRowIndex(1);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("알림");
+            builder.setMessage("더 이상 할 작업이 없습니다. 외움/못외움 상태를 초기화하겠습니까?");
+            builder.setPositiveButton("예",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            WordStatusInitialize();
+                        }
+                    });
+            builder.setNegativeButton("다른 파일 확인",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            OtherFileSelectClick();
+                        }
+                    });
+            builder.show();
+        }
+        else{
+            currentJobStatusTxtView.setText(Integer.toString(dataTableRowCount-randomIndexArray.size())); // 진행상황의 갯수를 맞춰줌
+            currentViewIndex = 0;
+            ShowWordFromRowIndex(randomIndexArray.get(currentViewIndex));
+        }
+
+    }
+
     private void ReadCsvFileAndWriteDB(){
         // 데이터베이스가 하나도 없을 경우에만 작동
         System.out.println("CSV파일을 READ함");
@@ -117,6 +194,17 @@ public class WorkbookActivity extends AppCompatActivity {
         return resultList;
     }
 
+    private int GetCompleteJobCounting(){
+        int result=0;
+        for(int rowIndex=1;rowIndex<=dataTableRowCount;rowIndex++){
+            ArrayList<Object> viewingRow = workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
+            if((int)viewingRow.get(3) != 0){
+                result++;
+            }
+        }
+        return result;
+    }
+
     private void ShowWordFromRowIndex(int rowIndex){
         ArrayList<Object> selectedRow = workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
         viewingWordTxtView.setText((String)selectedRow.get(1));
@@ -125,6 +213,7 @@ public class WorkbookActivity extends AppCompatActivity {
     }
 
     private void AdjustMemorizeWordCounting(){
+        // 첫 시작할 때 외운 횟수 및 못외운 횟수를 조정해주는 함수
         int memorizeCount = 0;
         int noneMemorizeCount = 0;
         ArrayList<Object> tempArrayList = new ArrayList<Object>();
@@ -139,6 +228,142 @@ public class WorkbookActivity extends AppCompatActivity {
         }
         memorizeTxtView.setText(Integer.toString(memorizeCount));
         noneMemorizeTxtView.setText(Integer.toString(noneMemorizeCount));
+    }
+
+    private void ViewNextCount(){
+        currentViewIndex++;
+        int currentJobCount = Integer.parseInt(currentJobStatusTxtView.getText().toString());
+        currentJobStatusTxtView.setText(Integer.toString(currentJobCount+1)); // 작업상황을 하나 늘림
+        if(randomIndexArray.size()<=currentViewIndex){
+            NewStatusStart();
+            return;
+        }
+        ShowWordFromRowIndex(randomIndexArray.get(currentViewIndex));
+    }
+
+    private void NewStatusStart(){
+        //작업을 완료했을 때 다시 시작하도록 설정하는 함수. 못외운 Row들을 미작업 상태로 돌려버림
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("알림");
+        builder.setMessage("모든 단어를 확인했습니다. 못외운 단어들을 다시 확인할까요?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+
+                        ArrayList<Object> tempArrayList = new ArrayList<Object>();
+                        for(int rowIndex=1;rowIndex<=dataTableRowCount;rowIndex++){
+                            tempArrayList=workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
+                            if((int)tempArrayList.get(3)==2){
+                                workbookSQLiteOpenHelper.UpdateData(rowIndex,null,null,"0");
+                            }
+                        }
+                        noneMemorizeTxtView.setText("0");
+                        System.out.println("RememberFlag 중 2를 0으로 전부 초기화시킴");
+                        RandomGetAndStart();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        builder.show();
+    }
+
+    private void WordStatusInitialize(){
+        maxJobFlag=false;
+        for(int rowIndex=1;rowIndex<=dataTableRowCount;rowIndex++){
+            workbookSQLiteOpenHelper.UpdateData(rowIndex,null,null,"0");
+        }
+        memorizeTxtView.setText(("0"));
+        noneMemorizeTxtView.setText(("0"));
+        currentJobStatusTxtView.setText(("0"));
+        RandomGetAndStart();
+        // CSV에 저장하는 것도 만들어야됨
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.workbook_action_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch(item.getItemId()){
+            case R.id.wordInsertItem:
+                WordInsertClick();
+                return true;
+            case R.id.wordDeleteItem:
+                WordDeleteClick();
+                return true;
+            case R.id.mixStartItem:
+                MixStartClick();
+                return true;
+            case R.id.wordStatusInitializeItem:
+                WordStatusInitializeClick();
+                return true;
+            case R.id.fullSpreadItem:
+                FullSpreadClick();
+                return true;
+            case R.id.otherFileSelectItem:
+                OtherFileSelectClick();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void WordInsertClick(){
+        Toast.makeText(this,"행 삽입은 미구현기능",Toast.LENGTH_SHORT).show();
+    }
+    private void WordDeleteClick(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("주의");
+        builder.setMessage("정말로 보고있는 데이터를 삭제하시겠습니까?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(),"행 삭제는 미구현기능",Toast.LENGTH_SHORT).show();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        builder.show();
+    }
+    private void MixStartClick(){
+        RandomGetAndStart();
+    }
+    private void WordStatusInitializeClick(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("주의");
+        builder.setMessage("외움/못외움 상태 초기화를 하시겠습니까? 이 작업은 되돌릴 수 없습니다.");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        WordStatusInitialize();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        builder.show();
+    }
+
+    private void FullSpreadClick(){
+        Toast.makeText(this,"풀스크린은 미구현기능",Toast.LENGTH_SHORT).show();
+    }
+
+    private void OtherFileSelectClick(){
+        workbookActivityOpenFlag = false;
+        // TODO:csv세이빙 기능이 있어야 함
+        finish();
     }
 
 

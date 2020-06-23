@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/wordInsertItem"
+        android:title="@string/uiWordInsertItem">
+    </item>
+    <item
+        android:id="@+id/wordDeleteItem"
+        android:title="@string/uiWordDeleteItem">
+    </item>
+    <item
+        android:id="@+id/mixStartItem"
+        android:title="@string/uiMixStartItem">
+    </item>
+    <item
+        android:id="@+id/wordStatusInitializeItem"
+        android:title="@string/uiWordStatusInitializeItem">
+    </item>
+    <item
+        android:id="@+id/fullSpreadItem"
+        android:title="@string/uiFullSpreadItem">
+    </item>
+
+    <item
+        android:id="@+id/otherFileSelectItem"
+        android:title="@string/uiOtherFileSelectItem">
+    </item>
+
+</menu>
