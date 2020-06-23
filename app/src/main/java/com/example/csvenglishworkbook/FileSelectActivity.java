@@ -43,6 +43,14 @@ public class FileSelectActivity extends AppCompatActivity {
         return fileInformationSQLiteOpenHelper;
     }
 
+    private static boolean isNeedReadCsv; // 데이터 테이블을 갱신할 때, csv파일을 새로 읽을 필요가 있는지 검사
+    public static boolean GetIsNeedReadCsv(){
+        return isNeedReadCsv;
+    }
+    public static void SetIsNeedReadCsv(boolean value){
+        isNeedReadCsv = value;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,6 +106,7 @@ public class FileSelectActivity extends AppCompatActivity {
 
         WorkbookActivity.SetWorkbookActivityOpenFlag(false); // 이 액티비티 생성자가 자동 삭제되는 것을 방지
         if(fileInformationSQLiteOpenHelper.IsExistTable()){
+            isNeedReadCsv = false;
             ArrayList<Object> intentDataList = fileInformationSQLiteOpenHelper.SelectRowAllData(1);
             onPause();
             workbookActivityIntent.putExtra("fileName", intentDataList.get(1).toString());
@@ -156,6 +165,7 @@ public class FileSelectActivity extends AppCompatActivity {
         System.out.println("파일 정보 테이블 갱신");
         fileInformationSQLiteOpenHelper.ExternalDropTable();
         fileInformationSQLiteOpenHelper.ExternalCreateTable();
+        isNeedReadCsv=true;
         fileInformationSQLiteOpenHelper.InsertData(selectedFileNameTxtView.getText().toString(), selectedFilePath);
         fileInformationSQLiteOpenHelper.ShowAllData(); // 디버깅전용
 

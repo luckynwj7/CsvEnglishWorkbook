@@ -133,8 +133,7 @@
             android:gravity="center"
             android:autoSizeTextType="uniform"
             android:background="@color/colorGray"
-            android:textColor="@color/colorBlack"
-            android:text="보기모드">
+            android:textColor="@color/colorBlack">
         </TextView>
         <TextView
             android:id="@+id/hidingWordTxtView"
@@ -145,8 +144,7 @@
             android:gravity="center"
             android:autoSizeTextType="uniform"
             android:background="@color/colorWhite"
-            android:textColor="@color/colorBlack"
-            android:text="입력모드">
+            android:textColor="@color/colorBlack">
         </TextView>
     </LinearLayout>
 

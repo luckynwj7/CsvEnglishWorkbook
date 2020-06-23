@@ -31,7 +31,7 @@ public class WorkbookActivity extends AppCompatActivity {
     private String fileName;
     private File selectedFile;
 
-    private int selectedRow; // 현재 선택된 행을 가리킴
+    private int selectedRowIndex; // 현재 선택된 행을 가리킴
 
     private CustomSQLiteOpenHelper workbookSQLiteOpenHelper; // SQLite DB관리
 
@@ -112,6 +112,10 @@ public class WorkbookActivity extends AppCompatActivity {
                     RandomGetAndStart();
                     return;
                 }
+                else if(dataTableRowCount<=0){
+                    Toast.makeText(getApplicationContext(),"진행할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 workbookSQLiteOpenHelper.UpdateData(randomIndexArray.get(currentViewIndex),null,null,"2");
                 int currentCount = Integer.parseInt(noneMemorizeTxtView.getText().toString());
                 noneMemorizeTxtView.setText(Integer.toString(currentCount+1));
@@ -128,6 +132,10 @@ public class WorkbookActivity extends AppCompatActivity {
                     RandomGetAndStart();
                     return;
                 }
+                else if(dataTableRowCount<=0){
+                    Toast.makeText(getApplicationContext(),"진행할 데이터가 없습니다.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 workbookSQLiteOpenHelper.UpdateData(randomIndexArray.get(currentViewIndex),null,null,"1");
                 int currentCount = Integer.parseInt(memorizeTxtView.getText().toString());
                 memorizeTxtView.setText(Integer.toString(currentCount+1));
@@ -135,8 +143,10 @@ public class WorkbookActivity extends AppCompatActivity {
             }
         });
 
+
+        selectedRowIndex=1;
         AdjustMemorizeWordCounting(); // 외운 횟수 및 못외운 횟수를 조정하고 시작함
-        RandomGetAndStart();
+        ViewingStartConditionCheckTableCountEmpty(); // 보여줄 행이 있을지에 따라 결정하고 시작
     }
 
     private void RandomGetAndStart(){
@@ -145,7 +155,7 @@ public class WorkbookActivity extends AppCompatActivity {
         // 첫 시작화면을 띄움
         if(randomIndexArray.size()<=0){
             maxJobFlag=true;
-            ShowWordFromRowIndex(1);
+            ShowWordFromRowIndex(selectedRowIndex);
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("알림");
             builder.setMessage("더 이상 할 작업이 없습니다. 외움/못외움 상태를 초기화하겠습니까?");
@@ -174,10 +184,12 @@ public class WorkbookActivity extends AppCompatActivity {
     private void ReadCsvFileAndWriteDB(){
         // 데이터베이스가 하나도 없을 경우에만 작동
         System.out.println("CSV파일을 READ함");
-        if(dataTableRowCount<=0){
+        if(FileSelectActivity.GetIsNeedReadCsv()){
+            System.out.println("CSV파일을 새롭게 READ함");
             ArrayList<ArrayList<String>> readCsvList = CsvReader.GetSplitDataArrayList(selectedFile);
             CsvReader.SaveArrayListInDataBase(readCsvList, workbookSQLiteOpenHelper); // StringArrayList를 Database에 저장
             dataTableRowCount = workbookSQLiteOpenHelper.DataTableRowCount();
+            FileSelectActivity.SetIsNeedReadCsv(false);
         }
     }
 
@@ -207,6 +219,7 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private void ShowWordFromRowIndex(int rowIndex){
         ArrayList<Object> selectedRow = workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
+        selectedRowIndex = (int)(selectedRow.get(0));
         viewingWordTxtView.setText((String)selectedRow.get(1));
         realHidingWord = (String)selectedRow.get(2);
         hidingWordTxtView.setText("");
@@ -319,13 +332,21 @@ public class WorkbookActivity extends AppCompatActivity {
         Toast.makeText(this,"행 삽입은 미구현기능",Toast.LENGTH_SHORT).show();
     }
     private void WordDeleteClick(){
+        if(dataTableRowCount<=0){
+            Toast.makeText(getApplicationContext(),"삭제할 단어가 없습니다.",Toast.LENGTH_SHORT).show();
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("주의");
         builder.setMessage("정말로 보고있는 데이터를 삭제하시겠습니까?");
         builder.setPositiveButton("예",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(),"행 삭제는 미구현기능",Toast.LENGTH_SHORT).show();
+                        workbookSQLiteOpenHelper.DeleteData(selectedRowIndex);
+                        // 전체 데이터 테이블 갯수도 낮춰놓음
+                        dataTableRowCount--;
+                        allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
+                        ViewingStartConditionCheckTableCountEmpty();
                     }
                 });
         builder.setNegativeButton("아니오",
@@ -336,9 +357,13 @@ public class WorkbookActivity extends AppCompatActivity {
         builder.show();
     }
     private void MixStartClick(){
-        RandomGetAndStart();
+        ViewingStartConditionCheckTableCountEmpty();
     }
     private void WordStatusInitializeClick(){
+        if(dataTableRowCount<=0){
+            Toast.makeText(getApplicationContext(),"작업할 데이터가 없습니다.",Toast.LENGTH_SHORT).show();
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("주의");
         builder.setMessage("외움/못외움 상태 초기화를 하시겠습니까? 이 작업은 되돌릴 수 없습니다.");
@@ -364,6 +389,26 @@ public class WorkbookActivity extends AppCompatActivity {
         workbookActivityOpenFlag = false;
         // TODO:csv세이빙 기능이 있어야 함
         finish();
+    }
+
+    private void ViewingStartConditionCheckTableCountEmpty(){
+        // 테이블의 행이 있냐 없냐에 따라 진행되는 Viewing을 결정함
+        if(dataTableRowCount<=0){
+            // 테이블 카운트가 0이라면 작동하는 함수
+            System.out.println("빈 행 작업이 일어났음.");
+            allJobStatusTxtView.setText("0");
+            currentJobStatusTxtView.setText("0");
+            noneMemorizeTxtView.setText("0");
+            memorizeTxtView.setText("0");
+            viewingWordTxtView.setText("");
+            hidingWordTxtView.setText("");
+            currentViewIndex=0;
+            maxJobFlag=false;
+            selectedRowIndex=0;
+        }
+        else{
+            RandomGetAndStart();
+        }
     }
 
 

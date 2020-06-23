@@ -28,8 +28,8 @@
     <string name="uiMixStartItem">섞어서 다시 시작</string>
     <string name="uiWordStatusInitializeItem">외움/못외움 상태 초기화</string>
     <string name="uiFullSpreadItem">전부 펼쳐보기</string>
-    <string name="uiWordInsertItem">보고있는 데이터 삽입</string>
-    <string name="uiWordDeleteItem">새로운 데이터 삭제</string>
+    <string name="uiWordInsertItem">새로운 데이터 삽입</string>
+    <string name="uiWordDeleteItem">현재 보고 있는 데이터 삭제</string>
 
     <string name="uiNoneMemorizeBtn">못외움</string>
     <string name="uiMemorizeBtn">외움</string>
