@@ -34,4 +34,10 @@
     <string name="uiNoneMemorizeBtn">못외움</string>
     <string name="uiMemorizeBtn">외움</string>
 
+    <string name="uiInsertDataDialogTitle">새로운 데이터 삽입하기</string>
+    <string name="uiInsertDataDialogViewingWord">보여질 텍스트 :&#160;</string>
+    <string name="uiInsertDataDialogHidingWord">감춰질 텍스트 :&#160;</string>
+    <string name="uiInsertDataDialogExitBtn">닫기</string>
+    <string name="uiInsertDataDialogOKBtn">추가하기</string>
+
 </resources>

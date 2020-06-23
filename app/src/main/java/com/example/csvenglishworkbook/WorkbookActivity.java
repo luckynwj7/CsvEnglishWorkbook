@@ -3,6 +3,7 @@ package com.example.csvenglishworkbook;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,6 +25,11 @@ import java.util.List;
 
 public class WorkbookActivity extends AppCompatActivity {
 
+    private static WorkbookActivity workbookActivity; //자기자신객체
+    public static WorkbookActivity GetWorkActivity(){
+        return workbookActivity;
+    }
+
 
     private Intent thisActivityGetIntent;
 
@@ -34,6 +40,8 @@ public class WorkbookActivity extends AppCompatActivity {
     private int selectedRowIndex; // 현재 선택된 행을 가리킴
 
     private CustomSQLiteOpenHelper workbookSQLiteOpenHelper; // SQLite DB관리
+
+    private InsertDataDialogManager myInsertDataDialog; // insert시에 작동하는 다이얼로그
 
     private static boolean workbookActivityOpenFlag; // fileSelectActivity의 생성자 자동 삭제를 방지
     public static boolean GetWorkbookActivityOpenFlag(){
@@ -70,6 +78,7 @@ public class WorkbookActivity extends AppCompatActivity {
         setContentView(R.layout.activity_workbook);
         workbookActivityOpenFlag = true;
         maxJobFlag=false;
+        workbookActivity = this;
 
 
         thisActivityGetIntent = getIntent();
@@ -80,6 +89,8 @@ public class WorkbookActivity extends AppCompatActivity {
         workbookSQLiteOpenHelper = FileSelectActivity.GetWorkbookSQLiteOpenHelper();
         dataTableRowCount = workbookSQLiteOpenHelper.DataTableRowCount();
         ReadCsvFileAndWriteDB();
+
+        myInsertDataDialog = new InsertDataDialogManager(this); // insert 다이얼로그 할당
 
 
         fileNameTxtView = findViewById(R.id.fileNameTxtView);
@@ -144,6 +155,12 @@ public class WorkbookActivity extends AppCompatActivity {
         });
 
 
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
         selectedRowIndex=1;
         AdjustMemorizeWordCounting(); // 외운 횟수 및 못외운 횟수를 조정하고 시작함
         ViewingStartConditionCheckTableCountEmpty(); // 보여줄 행이 있을지에 따라 결정하고 시작
@@ -329,8 +346,28 @@ public class WorkbookActivity extends AppCompatActivity {
     }
 
     private void WordInsertClick(){
-        Toast.makeText(this,"행 삽입은 미구현기능",Toast.LENGTH_SHORT).show();
+        myInsertDataDialog.Show();
     }
+
+
+    /// Insert작업
+    public static void NewDataInsert(String viewingWord, String hidingWord){
+        // InsertDialog로부터 전달받기 위한 함수
+        FileSelectActivity.GetWorkbookSQLiteOpenHelper().InsertData(viewingWord,hidingWord,"0");
+        ThisActivityInsertJobRestart(WorkbookActivity.GetWorkActivity());
+    }
+    private static void ThisActivityInsertJobRestart(WorkbookActivity activity){
+        System.out.println("액티비티 REFRESH");
+        activity.onStart();
+        activity.AllJobCountingPlus();
+    }
+    private void AllJobCountingPlus(){
+        dataTableRowCount++;
+        allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
+        randomIndexArray.add(dataTableRowCount);
+    }
+    ///
+
     private void WordDeleteClick(){
         if(dataTableRowCount<=0){
             Toast.makeText(getApplicationContext(),"삭제할 단어가 없습니다.",Toast.LENGTH_SHORT).show();

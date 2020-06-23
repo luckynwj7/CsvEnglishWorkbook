@@ -46,15 +46,16 @@
         android:layout_marginTop="10dp">
 
         <Button
-            android:id="@+id/workbookStartBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/uiTxtStart"></Button>
-        <Button
             android:id="@+id/activityExitBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/uiExitBtn"></Button>
+
+        <Button
+            android:id="@+id/workbookStartBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/uiTxtStart"></Button>
     </LinearLayout>
 
 </LinearLayout>
