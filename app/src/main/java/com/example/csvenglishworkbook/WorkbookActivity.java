@@ -309,7 +309,6 @@ public class WorkbookActivity extends AppCompatActivity {
         noneMemorizeTxtView.setText(("0"));
         currentJobStatusTxtView.setText(("0"));
         RandomGetAndStart();
-        // CSV에 저장하는 것도 만들어야됨
     }
 
 
@@ -425,6 +424,7 @@ public class WorkbookActivity extends AppCompatActivity {
     private void OtherFileSelectClick(){
         workbookActivityOpenFlag = false;
         // TODO:csv세이빙 기능이 있어야 함
+        CsvWriter.WriteScvFile(filePullPath, workbookSQLiteOpenHelper);
         finish();
     }
 
