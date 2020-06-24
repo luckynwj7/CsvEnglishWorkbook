@@ -3,12 +3,12 @@ package com.example.csvenglishworkbook;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Message;
+import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -18,10 +18,7 @@ import android.widget.Toast;
 import java.io.File;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 
 public class WorkbookActivity extends AppCompatActivity {
 
@@ -66,6 +63,7 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private ArrayList<Integer> randomIndexArray;
     private int currentViewIndex;
+    private AlertDialogManager updateAlertDialog;
 
     private int dataTableRowCount;
 
@@ -91,6 +89,7 @@ public class WorkbookActivity extends AppCompatActivity {
         ReadCsvFileAndWriteDB();
 
         myInsertDataDialog = new InsertDataDialogManager(this); // insert 다이얼로그 할당
+        updateAlertDialog = new AlertDialogManager(this); // update 다이얼로그 할당
 
 
         fileNameTxtView = findViewById(R.id.fileNameTxtView);
@@ -105,7 +104,9 @@ public class WorkbookActivity extends AppCompatActivity {
         memorizeTxtView = findViewById(R.id.memorizeTxtView);
         noneMemorizeTxtView = findViewById(R.id.noneMemorizeTxtView);
         viewingWordTxtView = findViewById(R.id.viewingWordTxtView);
+        registerForContextMenu(viewingWordTxtView);
         hidingWordTxtView = findViewById(R.id.hidingWordTxtView);
+        registerForContextMenu(hidingWordTxtView);
 
         hidingWordTxtView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -430,10 +431,66 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private void OtherFileSelectClick(){
         workbookActivityOpenFlag = false;
-        // TODO:csv세이빙 기능이 있어야 함
         CsvWriter.WriteScvFile(filePullPath, workbookSQLiteOpenHelper);
         finish();
     }
+
+    // 수정 관련 컨텍스트 메뉴
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater updateMenuInflater = getMenuInflater();
+        if(v==viewingWordTxtView){
+            updateMenuInflater.inflate(R.menu.viewing_word_click_menu,menu);
+        }
+        else if(v==hidingWordTxtView){
+            updateMenuInflater.inflate(R.menu.hiding_word_click_menu, menu);
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch(item.getItemId())
+        {
+            case R.id.updateViewingWordItem:
+                updateAlertDialog.SetInputText(viewingWordTxtView.getText().toString());
+                updateAlertDialog.SetOkBtnClickFunc(ViewingWordUpdateClickListener());
+                updateAlertDialog.ShowAlertDialog();
+                break;
+            case R.id.updateHidingWordItem:
+                updateAlertDialog.SetInputText(realHidingWord);
+                updateAlertDialog.SetOkBtnClickFunc(HidingWordUpdateClickListener());
+                updateAlertDialog.ShowAlertDialog();
+                break;
+        }
+        return true;
+    }
+
+    private DialogInterface.OnClickListener ViewingWordUpdateClickListener() {
+        //Viewing 수정
+        return new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String inputText = updateAlertDialog.GetInputTxtText();
+                viewingWordTxtView.setText(inputText);
+                workbookSQLiteOpenHelper.UpdateData(selectedRowIndex,inputText,null,null);
+            }
+        };
+    }
+
+    private DialogInterface.OnClickListener HidingWordUpdateClickListener() {
+        //Hiding 수정
+        return new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String inputText = updateAlertDialog.GetInputTxtText();
+                hidingWordTxtView.setText(updateAlertDialog.GetInputTxtText());
+                workbookSQLiteOpenHelper.UpdateData(selectedRowIndex,null,inputText,null);
+                realHidingWord = inputText;
+            }
+        };
+    }
+
+
+
 
     private void ViewingStartConditionCheckTableCountEmpty(){
         // 테이블의 행이 있냐 없냐에 따라 진행되는 Viewing을 결정함

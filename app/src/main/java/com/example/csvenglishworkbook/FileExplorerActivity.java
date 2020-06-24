@@ -1,18 +1,15 @@
 package com.example.csvenglishworkbook;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.accessibility.AccessibilityManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -22,7 +19,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -191,12 +187,13 @@ public class FileExplorerActivity extends AppCompatActivity {
         // TODO Auto-generated method stub
         //res폴더의 menu플더안에 xml로 MenuItem추가하기.
         //mainmenu.xml 파일을 java 객체로 인플레이트(inflate)해서 menu객체에 추가
-        getMenuInflater().inflate(R.menu.file_item, menu);
+        getMenuInflater().inflate(R.menu.file_view_item_menu, menu);
         super.onCreateContextMenu(menu, v, menuInfo);
     }
 
     //Context 메뉴로 등록한 View(여기서는 ListView)가 클릭되었을 때 자동으로 호출되는 메소드
 
+    @Override
     public boolean onContextItemSelected(MenuItem item) {
         //AdapterContextMenuInfo
         //AdapterView가 onCreateContextMenu할때의 추가적인 menu 정보를 관리하는 클래스
