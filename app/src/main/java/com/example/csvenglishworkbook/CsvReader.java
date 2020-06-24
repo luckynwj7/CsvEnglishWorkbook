@@ -3,6 +3,7 @@ package com.example.csvenglishworkbook;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.HashMap;
 
 import java.util.ArrayList;
 
@@ -59,9 +60,11 @@ public class CsvReader {
     private static ArrayList<String> GetColumnSplitTextList(String inputText){
         // 나눈 컬럼을 List로 만드는 함수
         String[] split = GetColumnSplitTextListPrevProcess(inputText);
-        ArrayList<String> result = ConvertArrayToArrayList(split);
+        ArrayList<String> result = SplitTextHidingWordRevert(split); // 숨겨놓았던 문자(컴마나 따옴표)를 다시 삽입함
+        //ArrayList<String> result = ConvertArrayToArrayList(split);
         return result;
     }
+
 
     private static ArrayList<String> ConvertArrayToArrayList(String[] inputStr){
         // 단순 배열을 arrayList형태로 만들어주는 함수. (String만 적용)
@@ -78,7 +81,9 @@ public class CsvReader {
         String convertText = FileReadAndConvertToText(file);
         ArrayList<String> splitRowData = GetRowSplitTextList(convertText);
         for (String rowSplit:splitRowData) {
-            ArrayList<String> splitColData = GetColumnSplitTextList(rowSplit);
+            System.out.println("로스플릿" + rowSplit);
+            System.out.println("로스플릿후처리" + SaveTextErrorPosition(rowSplit));
+            ArrayList<String> splitColData = GetColumnSplitTextList(SaveTextErrorPosition(rowSplit)); // 에러 포지션을 저장하고, 그것에 대한것을 나눔
             resultList.add(splitColData);
         }
         return resultList;
@@ -97,6 +102,98 @@ public class CsvReader {
             }
         }
     }
+
+
+
+
+    /// 컴마와 쌍따옴표를 를 처리해주는 부분
+    private static ArrayList<HashMap<Integer,String>> textErrorIndexList; // Split을 기준으로, 임시로 받아두는 리스트
+    private static String SaveTextErrorPosition(String inputText) {
+
+        int inputTextLength = inputText.length();
+        boolean innerDoubleQuotesFlag = false; // 쌍따옴표 안에 들어왔다는 의미
+
+        inputText = inputText + ",";
+
+        textErrorIndexList = new ArrayList<>();
+        int innerPosition = 0;//쌍따옴표가 열렸을 때의 내부 위치를 반환
+
+        HashMap<Integer,String> errorPosition = null;
+
+        for(int charIndex=0;charIndex < inputTextLength; charIndex++) {
+
+            if(innerDoubleQuotesFlag==false && inputText.charAt(charIndex)=='"') {
+                // 들어왔음을 의미함
+                innerDoubleQuotesFlag=true;
+
+                errorPosition = new HashMap<>(); //에러 문자의 위치를 반환하는 리스트
+                innerPosition = 0; // 문장위치 반환
+
+                inputText = inputText.substring(0,charIndex) + inputText.substring(charIndex+1); //현재 따옴표 삭제
+                inputTextLength--; // 삭제를 했으니 길이도 줄임
+                charIndex--; // 삭제했으니 반복수도 줄임
+
+                continue;
+            }
+            else if (innerDoubleQuotesFlag==true && inputText.charAt(charIndex)=='"' && inputText.charAt(charIndex+1)==',') {
+                // 나갔음을 의미함
+                innerDoubleQuotesFlag=false;
+
+                inputText = inputText.substring(0,charIndex) + inputText.substring(charIndex+1); //현재 따옴표 삭제
+                inputTextLength--; // 삭제를 했으니 길이도 줄임
+                charIndex--; // 삭제했으니 반복수도 줄임
+
+                // 각각 저장해두고 다음으로
+                textErrorIndexList.add(errorPosition);
+
+                continue;
+            }
+
+            // 들어왔을 때 동작하는 함수
+            if(innerDoubleQuotesFlag) {
+                if(inputText.charAt(charIndex)=='"' && inputText.charAt(charIndex+1)=='"') {
+                    // 따옴표 두 개 뭉치의 위치를 저장 및 따옴표 하나 삭제
+                    errorPosition.put(innerPosition, "\"");
+                    inputText = inputText.substring(0,charIndex+0) + inputText.substring(charIndex+2); //현재 및 다음 따옴표 삭제
+                    inputTextLength-=2; // 삭제를 했으니 길이도 줄임
+                    charIndex--; // 삭제했으니 반복수도 줄임
+                }
+                else if(inputText.charAt(charIndex)==',') {
+                    //컴마의 위치를 저장
+                    errorPosition.put(innerPosition, ",");
+                    inputText = inputText.substring(0,charIndex+0) + inputText.substring(charIndex+1); //현재 컴마 삭제
+                    inputTextLength--; // 삭제를 했으니 길이도 줄임
+                    charIndex--; // 삭제했으니 반복수도 줄임
+                }
+                innerPosition++;
+            }
+        }
+        inputText = inputText.substring(0,inputTextLength); // 삭제할 거 전부 삭제하고 원래 배열로 돌아옴
+        return inputText;
+    }
+
+    private static ArrayList<String> SplitTextHidingWordRevert(String[] splitArray) {
+        // 숨겨놓았던 문자(컴마나 따옴표)를 다시 삽입해서 ArrayList로 변환하여 돌려주는 함수
+        if(textErrorIndexList==null) {
+            System.out.println("사전에 정의된 배열이 없어 실행할 수 없음");
+            return null;
+        }
+        int sentCount = 0;
+        ArrayList<String> resultList = new ArrayList<String>();
+        for (String text:splitArray) {
+            if(textErrorIndexList.size()<=sentCount){
+                resultList.add(text);
+                continue;
+            }
+            for(int key:textErrorIndexList.get(sentCount).keySet()) {
+                text = text.substring(0,key) + textErrorIndexList.get(sentCount).get(key) + text.substring(key);
+            }
+            resultList.add(text);
+            sentCount++;
+        }
+        return resultList;
+    }
+
 
     public static void ShowDoubleArrayList(ArrayList<ArrayList<String>> inputArray){
         //디버깅전용 함수
