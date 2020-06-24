@@ -103,12 +103,16 @@ public class FileExplorerActivity extends AppCompatActivity {
     }
 
     private void NewCsvFileBtnClick(View view) {
-        String newFileName = getString(R.string.newCsvFileName) + " " + Integer.toString(currentExistFileCount) + ".csv";
-        System.out.println("생성될 파일 이름 : " + newFileName);
-        File file = new File(currentPath, newFileName);
+        File file = null;
+        do {
+            String newFileName = getString(R.string.newCsvFileName) + " " + Integer.toString(currentExistFileCount) + ".csv";
+            System.out.println("생성될 파일 이름 : " + newFileName);
+            file = new File(currentPath, newFileName);
+            currentExistFileCount++;
+        }while(file.exists());
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            fos.write("단어가 하나도 없습니다. 새로운 데이터를 추가해보세요.,이 데이터는 삭제해주세요.".getBytes());
+            fos.write("".getBytes());
             fos.close();
             RefreshFiles();
 
@@ -243,7 +247,7 @@ public class FileExplorerActivity extends AppCompatActivity {
 
         // 파일 확장자 먼저 뽑아냄
         String fileExtension = "";
-        if (selectedTempFile.length() >= 4) {
+        if (selectedTempFile.getName().length() >= 4) {
             fileExtension = selectedTempFile.getName().substring(selectedTempFile.getName().length() - 4);
         }
         String inputResult = ModifyFileNameCondition(alertDialog.GetInputTxtText(), fileExtension);
@@ -264,9 +268,17 @@ public class FileExplorerActivity extends AppCompatActivity {
         if (input.length() <= 0) {
             // 파일 입력을 아무것도 입력 안했을 경우
             return "";
-        } else if (input.length() >= 4 && input.substring(input.length() - 4) != extension) {
-            // 확장자가 다를 경우
-            return "";
+        } else{
+            if (input.length() >= 4){
+              String subString = input.substring(input.length() - 4);
+                if(!subString.equals(extension)) {
+                    // 확장자가 다를 경우
+                    return "";
+                }
+            }
+            else{
+                return "";
+            }
         }
         return input;
     }

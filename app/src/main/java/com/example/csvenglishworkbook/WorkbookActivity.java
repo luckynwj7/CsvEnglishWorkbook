@@ -204,7 +204,9 @@ public class WorkbookActivity extends AppCompatActivity {
         if(FileSelectActivity.GetIsNeedReadCsv()){
             System.out.println("CSV파일을 새롭게 READ함");
             ArrayList<ArrayList<String>> readCsvList = CsvReader.GetSplitDataArrayList(selectedFile);
-            CsvReader.SaveArrayListInDataBase(readCsvList, workbookSQLiteOpenHelper); // StringArrayList를 Database에 저장
+            if(readCsvList!=null){
+                CsvReader.SaveArrayListInDataBase(readCsvList, workbookSQLiteOpenHelper); // StringArrayList를 Database에 저장
+            }
             dataTableRowCount = workbookSQLiteOpenHelper.DataTableRowCount();
             FileSelectActivity.SetIsNeedReadCsv(false);
         }
@@ -363,7 +365,12 @@ public class WorkbookActivity extends AppCompatActivity {
     private void AllJobCountingPlus(){
         dataTableRowCount++;
         allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
+        if(randomIndexArray==null){
+            randomIndexArray = new ArrayList<Integer>();
+            RandomGetAndStart();
+        }
         randomIndexArray.add(dataTableRowCount);
+        ShowWordFromRowIndex(dataTableRowCount);
     }
     ///
 

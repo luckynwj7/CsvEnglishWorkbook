@@ -78,6 +78,10 @@ public class CsvReader {
     public static ArrayList<ArrayList<String>> GetSplitDataArrayList(File file){
         // 최종적으로 arrayList를 받는 함수
         ArrayList<ArrayList<String>> resultList = new ArrayList<ArrayList<String>>();
+        if(file.length()==0){
+            // 빈 파일은 그대로 반환함
+            return null;
+        }
         String convertText = FileReadAndConvertToText(file);
         ArrayList<String> splitRowData = GetRowSplitTextList(convertText);
         for (String rowSplit:splitRowData) {

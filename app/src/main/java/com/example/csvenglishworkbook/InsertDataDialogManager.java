@@ -42,6 +42,8 @@ public class InsertDataDialogManager{
             @Override
             public void onClick(View view) {
                 WorkbookActivity.NewDataInsert(insertDataDialogViewingWordEditTxt.getText().toString(), insertDataDialogHidingWordEditTxt.getText().toString());
+                insertDataDialogViewingWordEditTxt.setText("");
+                insertDataDialogHidingWordEditTxt.setText("");
                 myDialog.dismiss();
             }
         });
