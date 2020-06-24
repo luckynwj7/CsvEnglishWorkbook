@@ -54,7 +54,9 @@ public class CsvWriter
             result += Integer.toString((Integer)tempArray.get(3));
             result += "\n";
         }
-        result = result.substring(0,result.length()-1); // 마지막 공백문자를 제거
+        if(result.length()>1){
+            result = result.substring(0,result.length()-1); // 마지막 공백문자를 제거
+        }
         return result;
     }
 

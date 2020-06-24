@@ -108,7 +108,7 @@ public class FileExplorerActivity extends AppCompatActivity {
         File file = new File(currentPath, newFileName);
         try {
             FileOutputStream fos = new FileOutputStream(file);
-            fos.write("\"나는,테스트\"\"빌런이다.\",한국어\ncsv테스트,csv".getBytes());
+            fos.write("단어가 하나도 없습니다. 새로운 데이터를 추가해보세요.,이 데이터는 삭제해주세요.".getBytes());
             fos.close();
             RefreshFiles();
 

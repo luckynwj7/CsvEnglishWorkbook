@@ -81,8 +81,6 @@ public class CsvReader {
         String convertText = FileReadAndConvertToText(file);
         ArrayList<String> splitRowData = GetRowSplitTextList(convertText);
         for (String rowSplit:splitRowData) {
-            System.out.println("로스플릿" + rowSplit);
-            System.out.println("로스플릿후처리" + SaveTextErrorPosition(rowSplit));
             ArrayList<String> splitColData = GetColumnSplitTextList(SaveTextErrorPosition(rowSplit)); // 에러 포지션을 저장하고, 그것에 대한것을 나눔
             resultList.add(splitColData);
         }

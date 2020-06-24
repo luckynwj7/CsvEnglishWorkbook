@@ -244,7 +244,13 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
                     contentValues.put(columnList.get(index), inputColumn[index]);
                 }
                 else if (columnType.get(index) == "INTEGER"){
-                    contentValues.put(columnList.get(index), Integer.parseInt(inputColumn[index]));
+                    try{
+                        contentValues.put(columnList.get(index), Integer.parseInt(inputColumn[index]));
+                    }
+                    catch (Exception e){
+                        System.out.println("3열을 삭제하여 적용함");
+                    }
+
                 }
             }
         }
