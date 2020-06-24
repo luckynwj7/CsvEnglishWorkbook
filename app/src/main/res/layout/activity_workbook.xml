@@ -152,7 +152,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        android:layout_weight="2"
+        android:layout_weight="4"
         android:weightSum="2">
         <Button
             android:id="@+id/noneMemorizeBtn"
@@ -178,7 +178,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:orientation="horizontal"
-        android:layout_weight="2"
+        android:layout_weight="0"
         android:weightSum="5">
 
     </LinearLayout>

@@ -43,6 +43,7 @@ public class FileExplorerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_explorer);
+        this.setTitle(getString(R.string.app_name)+" - 파일 탐색기");
 
         thisActivityIntent = new Intent();
 
@@ -56,8 +57,11 @@ public class FileExplorerActivity extends AppCompatActivity {
 
         fileArrayList = new ArrayList<String>();
 
-        currentPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/Test";
-        //currentPath = getExternalCacheDir().getAbsolutePath();
+        currentPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + getString(R.string.app_name);
+        File dir = new File(currentPath);
+        if(!dir.exists()){
+            dir.mkdir();
+        }
         Log.d("alert", "현재경로" + currentPath);
         Log.d("alert", "접근권한" + Environment.getExternalStorageState());
 
@@ -101,7 +105,7 @@ public class FileExplorerActivity extends AppCompatActivity {
     private void NewCsvFileBtnClick(View view) {
         File file = null;
         do {
-            String newFileName = getString(R.string.newCsvFileName) + " " + Integer.toString(currentExistFileCount) + ".csv";
+            String newFileName = getString(R.string.newCsvFileName) + Integer.toString(currentExistFileCount) + ".csv";
             System.out.println("생성될 파일 이름 : " + newFileName);
             file = new File(currentPath, newFileName);
             currentExistFileCount++;

@@ -74,6 +74,7 @@ public class WorkbookActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_workbook);
+
         workbookActivityOpenFlag = true;
         maxJobFlag=false;
         workbookActivity = this;
@@ -283,7 +284,7 @@ public class WorkbookActivity extends AppCompatActivity {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("알림");
-        builder.setMessage("모든 단어를 확인했습니다. 못외운 단어들을 다시 확인할까요?");
+        builder.setMessage("모든 단어를 확인했습니다. 못 외운 단어들을 다시 확인할까요?");
         builder.setPositiveButton("예",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -431,7 +432,7 @@ public class WorkbookActivity extends AppCompatActivity {
     }
 
     private void FullSpreadClick(){
-        Toast.makeText(this,"풀스크린은 미구현기능",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"데이터 펼져보기는 미구현기능",Toast.LENGTH_SHORT).show();
     }
 
     private void OtherFileSelectClick(){
