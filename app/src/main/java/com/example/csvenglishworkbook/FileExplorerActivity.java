@@ -256,7 +256,13 @@ public class FileExplorerActivity extends AppCompatActivity {
             selectedTempFile = null;
             return;
         }
-        selectedTempFile.renameTo(new File(currentPath + "/" + inputResult));
+        File renameFile = new File(currentPath + "/" + inputResult);
+        if (renameFile.exists()) {
+            Toast.makeText(this, "이미 같은 이름의 파일이 존재합니다.", Toast.LENGTH_SHORT).show();
+            selectedTempFile = null;
+            return;
+        }
+        selectedTempFile.renameTo(renameFile);
         RefreshFiles();
         Toast.makeText(this, "이름이 수정되었습니다.", Toast.LENGTH_SHORT).show();
         selectedTempFile = null;
