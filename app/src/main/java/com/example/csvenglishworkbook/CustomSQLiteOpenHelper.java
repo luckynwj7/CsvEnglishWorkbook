@@ -50,7 +50,7 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
         columnList.add("RowIndex");
         columnType.add("INTEGER");
         // 기본 키가 되는 속성은 어느 테이블 이름이던 고정으로 달아놓음
-        if(dataTableName == workbookDBName){
+        if(dataTableName.equals(workbookDBName)){
             columnList.add("ViewingWord");
             columnList.add("HidingWord");
             columnList.add("RememberFlag");
@@ -59,7 +59,7 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
             columnType.add("TEXT");
             columnType.add("INTEGER");
         }
-        else if (dataTableName == fileInformationDBName){
+        else if (dataTableName.equals(fileInformationDBName)){
             columnList.add("FileName");
             columnList.add("FilePullPath");
 
@@ -184,10 +184,10 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
         Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName + " WHERE " + columnList.get(0) + " = " + rowIndex.toString(), null);
         cursor.moveToFirst();
         for(int index=0;index<columnList.size();index++){
-            if(columnType.get(index) == "TEXT"){
+            if(columnType.get(index).equals("TEXT")){
                 resultList.add(cursor.getString(index));
             }
-            else if(columnType.get(index) == "INTEGER"){
+            else if(columnType.get(index).equals("INTEGER")){
                 resultList.add(cursor.getInt(index));
             }
         }
@@ -211,11 +211,11 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
         Cursor cursor = readableDB.rawQuery("SELECT * FROM " + dataTableName, null);
         while(cursor.moveToNext()){
             for(int index=0;index<columnList.size();index++){
-                if(columnType.get(index) == "TEXT"){
+                if(columnType.get(index).equals("TEXT")){
                     result += cursor.getString(index);
                     result += ":";
                 }
-                else if(columnType.get(index) == "INTEGER"){
+                else if(columnType.get(index).equals("INTEGER")){
                     result += cursor.getInt(index);
                     result += ":";
                 }
@@ -240,10 +240,10 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         for(int index = 0; index<columnList.size();index++){
             if(inputColumn[index]!=null){
-                if(columnType.get(index) == "TEXT"){
+                if(columnType.get(index).equals("TEXT")){
                     contentValues.put(columnList.get(index), inputColumn[index]);
                 }
-                else if (columnType.get(index) == "INTEGER"){
+                else if (columnType.get(index).equals("INTEGER")){
                     try{
                         contentValues.put(columnList.get(index), Integer.parseInt(inputColumn[index]));
                     }

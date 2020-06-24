@@ -243,7 +243,7 @@ public class FileExplorerActivity extends AppCompatActivity {
         // 파일 확장자 먼저 뽑아냄
         String fileExtension = ExtractExtension(selectedTempFile.getName());
         String inputResult = ModifyFileNameCondition(alertDialog.GetInputTxtText(), fileExtension);
-        if (inputResult == "") {
+        if (inputResult.equals("")) {
             Toast.makeText(this, "이름이 수정에 실패했습니다.\n들어갈 수 없는 기호가 있거나 확장자가 바뀌었습니다.", Toast.LENGTH_SHORT).show();
             selectedTempFile = null;
             return;
