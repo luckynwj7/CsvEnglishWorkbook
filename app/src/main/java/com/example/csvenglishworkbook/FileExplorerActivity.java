@@ -138,12 +138,7 @@ public class FileExplorerActivity extends AppCompatActivity {
             RefreshFiles();//리프레쉬
         } else {
             // 확장자 비교 작업을 하여 CSV파일만 읽어냄
-            String fileExtension;
-            if (clickFileName.length() > 4) {
-                fileExtension = clickFileName.substring(clickFileName.length() - 4);
-            } else {
-                fileExtension = "";
-            }
+            String fileExtension = ExtractExtension(clickFileName);
             if (fileExtension.equals(".csv")) {
                 thisActivityIntent.putExtra("filePullPath", clickResultFilePath); // 파일 전체 경로를 전달
                 thisActivityIntent.putExtra("fileName", clickFileName.replace(".csv","")); // 파일 이름을 전달
@@ -246,10 +241,7 @@ public class FileExplorerActivity extends AppCompatActivity {
         // 클릭 이벤트 시 작동함
 
         // 파일 확장자 먼저 뽑아냄
-        String fileExtension = "";
-        if (selectedTempFile.getName().length() >= 4) {
-            fileExtension = selectedTempFile.getName().substring(selectedTempFile.getName().length() - 4);
-        }
+        String fileExtension = ExtractExtension(selectedTempFile.getName());
         String inputResult = ModifyFileNameCondition(alertDialog.GetInputTxtText(), fileExtension);
         if (inputResult == "") {
             Toast.makeText(this, "이름이 수정에 실패했습니다.\n들어갈 수 없는 기호가 있거나 확장자가 바뀌었습니다.", Toast.LENGTH_SHORT).show();
@@ -275,8 +267,8 @@ public class FileExplorerActivity extends AppCompatActivity {
             // 파일 입력을 아무것도 입력 안했을 경우
             return "";
         } else{
-            if (input.length() >= 4){
-              String subString = input.substring(input.length() - 4);
+            if (input.length() >= extension.length()){
+              String subString = input.substring(input.length() - extension.length());
                 if(!subString.equals(extension)) {
                     // 확장자가 다를 경우
                     return "";
@@ -287,6 +279,21 @@ public class FileExplorerActivity extends AppCompatActivity {
             }
         }
         return input;
+    }
+
+    private String ExtractExtension(String fileName){
+        String result="";
+        int findIndex=0;
+        for(int charIndex = fileName.length()-1;charIndex >=0 ;charIndex--){
+            if(fileName.charAt(charIndex)=='.'){
+                findIndex=charIndex;
+                break;
+            }
+        }
+        if(findIndex>0){
+            result=fileName.substring(findIndex);
+        }
+        return result;
     }
 
     public FileExplorerActivity() {

@@ -40,4 +40,6 @@
     <string name="uiInsertDataDialogExitBtn">닫기</string>
     <string name="uiInsertDataDialogOKBtn">추가하기</string>
 
+    <string name="menuUpdateWordItem">수정하기</string>
+
 </resources>
