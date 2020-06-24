@@ -40,14 +40,31 @@ public class CsvWriter
 
         for(int rowCount = 1; rowCount<=maxRowCount;rowCount++){
             ArrayList<Object> tempArray = db.SelectRowAllData(rowCount);
-            result += (String)tempArray.get(1);
+
+            String inputText = (String)tempArray.get(1);
+            inputText = RevertOriginalCsvType(inputText);
+            result += inputText;
             result += ",";
-            result += (String)tempArray.get(2);
+
+            inputText = (String)tempArray.get(2);
+            inputText = RevertOriginalCsvType(inputText);
+            result += inputText;
             result += ",";
+
             result += Integer.toString((Integer)tempArray.get(3));
             result += "\n";
         }
         result = result.substring(0,result.length()-1); // 마지막 공백문자를 제거
+        return result;
+    }
+
+    private static String RevertOriginalCsvType(String inputText){
+        String result = inputText;
+        if(inputText.contains(",") || inputText.contains(",")){
+            inputText = inputText.replaceAll("\"","\"\"");
+            result = "\"" + inputText + "\"";
+
+        }
         return result;
     }
 
