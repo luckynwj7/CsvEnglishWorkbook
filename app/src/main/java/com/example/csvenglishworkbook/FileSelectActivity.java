@@ -105,14 +105,20 @@ public class FileSelectActivity extends AppCompatActivity {
 
 
         WorkbookActivity.SetWorkbookActivityOpenFlag(false); // 이 액티비티 생성자가 자동 삭제되는 것을 방지
-        if(fileInformationSQLiteOpenHelper.IsExistTable()){
-            isNeedReadCsv = false;
-            ArrayList<Object> intentDataList = fileInformationSQLiteOpenHelper.SelectRowAllData(1);
-            onPause();
-            workbookActivityIntent.putExtra("fileName", intentDataList.get(1).toString());
-            workbookActivityIntent.putExtra("filePullPath",intentDataList.get(2).toString());
-            startActivity(workbookActivityIntent);
+        try{
+            if(fileInformationSQLiteOpenHelper.IsExistTable()){
+                isNeedReadCsv = false;
+                ArrayList<Object> intentDataList = fileInformationSQLiteOpenHelper.SelectRowAllData(1);
+                onPause();
+                workbookActivityIntent.putExtra("fileName", intentDataList.get(1).toString());
+                workbookActivityIntent.putExtra("filePullPath",intentDataList.get(2).toString());
+                startActivity(workbookActivityIntent);
+            }
         }
+        catch (Exception e){
+            System.out.println("DB생성 관련 예외처리");
+        }
+
 
     }
 

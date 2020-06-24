@@ -188,6 +188,7 @@ public class CsvReader {
                 continue;
             }
             for(int key:textErrorIndexList.get(sentCount).keySet()) {
+                System.out.println("ㅇㅇ"+text);
                 text = text.substring(0,key) + textErrorIndexList.get(sentCount).get(key) + text.substring(key);
             }
             resultList.add(text);
