@@ -276,6 +276,11 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private void NewStatusStart(){
         //작업을 완료했을 때 다시 시작하도록 설정하는 함수. 못외운 Row들을 미작업 상태로 돌려버림
+
+        if(allJobStatusTxtView.getText().toString().equals(memorizeTxtView.getText().toString())){
+            RandomGetAndStart();
+            return;
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("알림");
         builder.setMessage("모든 단어를 확인했습니다. 못외운 단어들을 다시 확인할까요?");
