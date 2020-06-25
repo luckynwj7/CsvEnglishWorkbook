@@ -3,4 +3,7 @@
     <item
         android:id="@+id/updateViewingWordItem"
         android:title="@string/menuUpdateWordItem" />
+    <item
+        android:id="@+id/findViewingWordDictionaryItem"
+        android:title="@string/menuFindDictionaryItem" />
 </menu>

@@ -42,4 +42,6 @@
 
     <string name="menuUpdateWordItem">수정하기</string>
 
+    <string name="menuFindDictionaryItem">사전에서 찾아보기</string>
+
 </resources>

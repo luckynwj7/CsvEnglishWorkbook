@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -158,16 +159,22 @@ public class WorkbookActivity extends AppCompatActivity {
             }
         });
 
-
+        selectedRowIndex=1;
+        AdjustMemorizeWordCounting(); // 외운 횟수 및 못외운 횟수를 조정하고 시작함
+        ViewingStartConditionCheckTableCountEmpty(); // 보여줄 행이 있을지에 따라 결정하고 시작
 
     }
 
     @Override
     protected void onStart() {
+        System.out.println("onStart이벤트 시작");
         super.onStart();
-        selectedRowIndex=1;
-        AdjustMemorizeWordCounting(); // 외운 횟수 및 못외운 횟수를 조정하고 시작함
-        ViewingStartConditionCheckTableCountEmpty(); // 보여줄 행이 있을지에 따라 결정하고 시작
+
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        System.out.println("onPause이벤트 시작");
     }
 
     public void RandomGetAndStart(){
@@ -511,8 +518,11 @@ public class WorkbookActivity extends AppCompatActivity {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
+        String uriPath = "https://en.dict.naver.com/#/search?query=";
+        Intent findDictionaryIntent = null;
         switch(item.getItemId())
         {
+
             case R.id.updateViewingWordItem:
                 updateAlertDialog.SetInputText(viewingWordTxtView.getText().toString());
                 updateAlertDialog.SetOkBtnClickFunc(ViewingWordUpdateClickListener());
@@ -523,6 +533,22 @@ public class WorkbookActivity extends AppCompatActivity {
                 updateAlertDialog.SetOkBtnClickFunc(HidingWordUpdateClickListener());
                 updateAlertDialog.ShowAlertDialog();
                 break;
+            case R.id.findViewingWordDictionaryItem:
+                uriPath+=viewingWordTxtView.getText().toString();
+                findDictionaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriPath));
+                // findDictionaryIntent.setPackage("com.android.chrome");   // 브라우저가 여러개 인 경우 콕 찍어서 크롬을 지정할 경우
+                this.onPause();
+                startActivity(findDictionaryIntent);
+                //출처: https://bitsoul.tistory.com/36 [Happy Programmer~]
+                break;
+            case R.id.findHidingWordDictionaryItem:
+                uriPath+=realHidingWord;
+                findDictionaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriPath));
+                // findDictionaryIntent.setPackage("com.android.chrome");   // 브라우저가 여러개 인 경우 콕 찍어서 크롬을 지정할 경우
+                this.onPause();
+                startActivity(findDictionaryIntent);
+                break;
+
         }
         return true;
     }
@@ -597,6 +623,7 @@ public class WorkbookActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        System.out.println("WorkbookActivity 소멸");
         super.onDestroy();
     }
 }
