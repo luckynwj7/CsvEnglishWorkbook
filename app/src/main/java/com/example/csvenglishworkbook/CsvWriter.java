@@ -1,8 +1,11 @@
 package com.example.csvenglishworkbook;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class CsvWriter
@@ -13,25 +16,18 @@ public class CsvWriter
 
         String inputText = GetStringContentsConvertFromDB(db);
         try {
-            // open file.
-            fw = new FileWriter(writeFile);
-
-            // write file.
-            fw.write(inputText);
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            FileOutputStream output=new FileOutputStream(filePath,false);
+            //true로 두면 이어서 쓰고 , false로 쓰면 새로 씀
+            OutputStreamWriter writer=new OutputStreamWriter(output,"euc-kr");
+            BufferedWriter out=new BufferedWriter(writer);
+            out.write(inputText);
+            //out.append("");
+            out.close();
         }
-
-        // close file.
-        if (fw != null) {
-            // catch Exception here or throw.
-            try {
-                fw.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        catch(Exception e) {
+            System.out.println("실패");
         }
+        // 출처 https://m.blog.naver.com/PostView.nhn?blogId=software705&logNo=220587262406&proxyReferer=https:%2F%2Fwww.google.com%2F
     }
 
     private static String GetStringContentsConvertFromDB(CustomSQLiteOpenHelper db){

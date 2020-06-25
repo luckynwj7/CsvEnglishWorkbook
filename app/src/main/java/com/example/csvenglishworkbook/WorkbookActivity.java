@@ -220,7 +220,14 @@ public class WorkbookActivity extends AppCompatActivity {
         // 작업하지 않은 Row의 배열을 새로 반환함
         ArrayList<Integer> resultList = new ArrayList<Integer>();
         for(int rowIndex=1;rowIndex<=dataTableRowCount;rowIndex++){
-            ArrayList<Object> viewingRow = workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
+            ArrayList<Object> viewingRow = null;
+            try{
+                viewingRow = workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
+            }
+            catch (Exception e){
+                //읽을 수 없는 행이 나왔다면 그냥 넘어감
+                continue;
+            }
             if((int)viewingRow.get(3) == 0){
                 resultList.add((int)viewingRow.get(0));
             }

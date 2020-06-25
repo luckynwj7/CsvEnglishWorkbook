@@ -13,30 +13,25 @@ import java.util.ArrayList;
 public class CsvReader {
 
     private static String FileReadAndConvertToText(File file) {
-        FileReader fr = null;
-        BufferedReader bufrd = null;
-        String result = "";
-        char ch;
+        String result ="";
         try {
-            // open file.
-            fr = new FileReader(file);
-            bufrd = new BufferedReader(fr);
-            // read 1 char from file.
-            ch = (char) bufrd.read();
-            while (ch != -1) {
-                result += ch;
-                ch = (char) bufrd.read();
-                if (ch == '\uFFFF') {
-                    break;
-                }
+            FileInputStream input=new FileInputStream(file);
+            InputStreamReader reader=new InputStreamReader(input,"euc-kr");
+            BufferedReader in=new BufferedReader(reader);
+            // 한글 깨짐 현상 해결
+            int ch;
+            while((ch=in.read())!=-1){
+                //하나씩 받아오고 출력시킴!!
+                result += (char)ch;
             }
-            // close file.
-            bufrd.close();
-            fr.close();
-            return result;
-        } catch (Exception e) {
-            return "";
+            in.close();
+            //파일을 닫아줌
+            // 출처 https://m.blog.naver.com/PostView.nhn?blogId=software705&logNo=220587262406&proxyReferer=https:%2F%2Fwww.google.com%2F
         }
+        catch(Exception e) {
+            System.out.println("실패");
+        }
+        return result;
     }
 
     private static ArrayList<String> GetRowSplitTextList(String inputText) {
