@@ -12,13 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_app_main_image_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
-        <activity android:name=".WorkbookActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".WorkbookActivity"/>
         <activity android:name=".FileExplorerActivity" />
         <activity android:name=".FileSelectActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar">

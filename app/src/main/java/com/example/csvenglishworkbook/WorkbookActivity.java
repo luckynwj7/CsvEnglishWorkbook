@@ -19,6 +19,8 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EmptyStackException;
+import java.util.Random;
 
 public class WorkbookActivity extends AppCompatActivity {
 
@@ -168,7 +170,7 @@ public class WorkbookActivity extends AppCompatActivity {
         ViewingStartConditionCheckTableCountEmpty(); // 보여줄 행이 있을지에 따라 결정하고 시작
     }
 
-    private void RandomGetAndStart(){
+    public void RandomGetAndStart(){
         // 랜덤한 Row를 받아서 실행하게 하는 함수. 랜덤 배열을 0부터 시작시킴
         randomIndexArray = GetRandomNoneMemorizeList(); // 랜덤 배열을 새로 저장함
         // 첫 시작화면을 띄움
@@ -366,17 +368,20 @@ public class WorkbookActivity extends AppCompatActivity {
     }
     private static void ThisActivityInsertJobRestart(WorkbookActivity activity){
         System.out.println("액티비티 REFRESH");
-        activity.onStart();
         activity.AllJobCountingPlus();
+        //activity.RandomGetAndStart();
+
     }
     private void AllJobCountingPlus(){
         dataTableRowCount++;
+        maxJobFlag=false;
         allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
         if(randomIndexArray==null){
             randomIndexArray = new ArrayList<Integer>();
             RandomGetAndStart();
         }
         randomIndexArray.add(dataTableRowCount);
+        RandomGetAndStart();
         ShowWordFromRowIndex(dataTableRowCount);
     }
     ///
@@ -392,11 +397,7 @@ public class WorkbookActivity extends AppCompatActivity {
         builder.setPositiveButton("예",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        workbookSQLiteOpenHelper.DeleteData(selectedRowIndex);
-                        // 전체 데이터 테이블 갯수도 낮춰놓음
-                        dataTableRowCount--;
-                        allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
-                        ViewingStartConditionCheckTableCountEmpty();
+                        DeleteAct();
                     }
                 });
         builder.setNegativeButton("아니오",
@@ -406,6 +407,35 @@ public class WorkbookActivity extends AppCompatActivity {
                 });
         builder.show();
     }
+    private void DeleteAct(){
+        workbookSQLiteOpenHelper.DeleteData(selectedRowIndex);
+        // 전체 데이터 테이블 갯수도 낮춰놓음
+        dataTableRowCount--;
+        allJobStatusTxtView.setText(Integer.toString(dataTableRowCount));
+        selectedRowIndex--;
+        int memorizeCount = Integer.parseInt(memorizeTxtView.getText().toString());
+
+        if(dataTableRowCount==0){
+            System.out.println("DELETE결과 모든 행이 사라짐");
+            ViewingStartConditionCheckTableCountEmpty();
+        }
+        else if(maxJobFlag){
+            // 모든 작업을 끝마친 상태에서 삭제작업을 진행할 경우
+            memorizeTxtView.setText(Integer.toString(memorizeCount-1));
+            int currentJobCount = Integer.parseInt(currentJobStatusTxtView.getText().toString());
+            currentJobStatusTxtView.setText(Integer.toString(currentJobCount-1));
+            RandomGetAndStart();
+        }
+        else if(dataTableRowCount == memorizeCount){
+            //삭제했는데 우연히 맞춰졌을 경우
+            RandomGetAndStart();
+        }
+        else{
+            //그 외에 상황
+            RandomGetAndStart();
+        }
+    }
+
     private void MixStartClick(){
         ViewingStartConditionCheckTableCountEmpty();
     }
@@ -436,9 +466,27 @@ public class WorkbookActivity extends AppCompatActivity {
     }
 
     private void OtherFileSelectClick(){
-        workbookActivityOpenFlag = false;
-        CsvWriter.WriteScvFile(filePullPath, workbookSQLiteOpenHelper);
-        finish();
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("알림");
+        builder.setMessage("현재 데이터베이스 변경사항을 파일로 저장하겠습니까?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        workbookActivityOpenFlag = false;
+                        CsvWriter.WriteScvFile(filePullPath, workbookSQLiteOpenHelper);
+                        finish();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        workbookActivityOpenFlag = false;
+                        finish();
+                    }
+                });
+        builder.show();
+
     }
 
     // 수정 관련 컨텍스트 메뉴
@@ -509,6 +557,7 @@ public class WorkbookActivity extends AppCompatActivity {
             memorizeTxtView.setText("0");
             viewingWordTxtView.setText("");
             hidingWordTxtView.setText("");
+            realHidingWord="";
             currentViewIndex=0;
             maxJobFlag=false;
             selectedRowIndex=0;
@@ -516,6 +565,26 @@ public class WorkbookActivity extends AppCompatActivity {
         else{
             RandomGetAndStart();
         }
+    }
+
+    @Override
+    public void onBackPressed(){
+        //super.onBackPressed();
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("알림");
+        builder.setMessage("종료하시겠습니까?");
+        builder.setPositiveButton("예",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+        builder.setNegativeButton("아니오",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        builder.show();
     }
 
 
