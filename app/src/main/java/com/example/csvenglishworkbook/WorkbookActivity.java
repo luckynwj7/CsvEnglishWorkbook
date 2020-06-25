@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EmptyStackException;
+import java.util.Locale;
 import java.util.Random;
 
 public class WorkbookActivity extends AppCompatActivity {
@@ -70,6 +72,8 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private int dataTableRowCount;
 
+    private TTSManager ttsManager;
+
     private boolean maxJobFlag; //모든 작업을 끝마쳤을 경우 외움/못외움을 진행하지 못하도록 함
 
 
@@ -81,6 +85,9 @@ public class WorkbookActivity extends AppCompatActivity {
         workbookActivityOpenFlag = true;
         maxJobFlag=false;
         workbookActivity = this;
+
+        ttsManager = new TTSManager(this);
+       // myTTS.SetTTSLanguage(".");
 
 
         thisActivityGetIntent = getIntent();
@@ -108,6 +115,12 @@ public class WorkbookActivity extends AppCompatActivity {
         memorizeTxtView = findViewById(R.id.memorizeTxtView);
         noneMemorizeTxtView = findViewById(R.id.noneMemorizeTxtView);
         viewingWordTxtView = findViewById(R.id.viewingWordTxtView);
+        viewingWordTxtView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ttsManager.Speech(viewingWordTxtView.getText().toString());
+            }
+        });
         registerForContextMenu(viewingWordTxtView);
         hidingWordTxtView = findViewById(R.id.hidingWordTxtView);
         registerForContextMenu(hidingWordTxtView);
@@ -116,6 +129,7 @@ public class WorkbookActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hidingWordTxtView.setText(realHidingWord);
+                ttsManager.Speech(hidingWordTxtView.getText().toString());
             }
         });
 
@@ -258,6 +272,11 @@ public class WorkbookActivity extends AppCompatActivity {
         ArrayList<Object> selectedRow = workbookSQLiteOpenHelper.SelectRowAllData(rowIndex);
         selectedRowIndex = (int)(selectedRow.get(0));
         viewingWordTxtView.setText((String)selectedRow.get(1));
+
+        //tts음성 실행
+        System.out.println("음성 실행");
+        ttsManager.Speech((String)selectedRow.get(1));
+
         realHidingWord = (String)selectedRow.get(2);
         hidingWordTxtView.setText("");
     }
@@ -477,6 +496,14 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private void FullSpreadClick(){
         Toast.makeText(this,"데이터 펼져보기는 미구현기능",Toast.LENGTH_SHORT).show();
+
+        /*
+        File filePath = new File(filePullPath);
+        Intent intent = new Intent();
+        intent.setAction(android.content.Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.fromFile(filePath), "text/xls");
+        startActivity(intent);*/
+        //출처: https://kylblog.tistory.com/22 [ylblog]
     }
 
     private void OtherFileSelectClick(){
