@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/uiAudioOptionTitleTxtView"
+        android:textSize="20dp"
+        android:layout_marginBottom="20dp">
+    </TextView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp">
+
+        <CheckBox
+            android:id="@+id/audioOptionMuteFlagChkBox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/uiAudioMuteLabel">
+        </CheckBox>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/uiAudioSpeedLabel">
+        </TextView>
+        <TextView
+            android:id="@+id/audioOptionSpeedStatusTxtView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0">
+        </TextView>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="%">
+        </TextView>
+
+    </LinearLayout>
+
+    <SeekBar
+        android:id="@+id/audioOptionSpeedSeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="300"
+        android:progress="100">
+    </SeekBar>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginTop="20dp">
+        <Button
+            android:id="@+id/audioOptionExitBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/uiAudioOptionExitBtn">
+        </Button>
+        <Button
+            android:id="@+id/audioOptionBasicApplyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/uiAudioOptionBasicApplyBtn">
+        </Button>
+        <Button
+            android:id="@+id/audioOptionApplyBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/uiAudioOptionApplyBtn">
+        </Button>
+    </LinearLayout>
+
+</LinearLayout>

@@ -10,11 +10,21 @@ import java.util.Locale;
 
 public class TTSManager extends TextToSpeech{
     private Context context;
-    private float soundVolume;
-    public void SetSoundVolume(float value){
-        soundVolume=value;
+
+    private float soundPitch;
+
+    private boolean soundMuteFlag;
+    public boolean GetSoundMute(){
+        return soundMuteFlag;
     }
+    public void SetSoundMute(boolean value){
+        soundMuteFlag = value;
+    }
+
     private float soundPlaySpeed;
+    public float GetSoundPlaySpeed(){
+        return soundPlaySpeed;
+    }
     public void SetSoundPlaySpeed(float value){
         soundPlaySpeed=value;
     }
@@ -22,8 +32,9 @@ public class TTSManager extends TextToSpeech{
     public TTSManager(Context context) {
         super(context, GetTTSListener());
         this.context = context;
-        soundVolume= (float) 0.1;
-        soundPlaySpeed= (float) 1.0;
+        soundPitch = (float) 0; // 기본값
+        soundPlaySpeed= (float) 1.0; // 기본값
+        soundMuteFlag = false; // 기본값;
 
     }
 
@@ -45,8 +56,13 @@ public class TTSManager extends TextToSpeech{
 
     public void Speech(String inputText) {
         SetSpeechLanguage(inputText);
-        this.setPitch(soundVolume);      // 음량
+        this.setPitch(soundPitch);
         this.setSpeechRate(soundPlaySpeed); // 재생속도
+
+        if(soundMuteFlag){
+            // 음소거 모드
+            return;
+        }
         this.speak(inputText, TextToSpeech.QUEUE_FLUSH, null);
     }
     private void SetSpeechLanguage(String language){

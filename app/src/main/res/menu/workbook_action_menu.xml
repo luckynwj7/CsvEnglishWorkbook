@@ -23,6 +23,11 @@
     </item>
 
     <item
+        android:id="@+id/audioOptionItem"
+        android:title="@string/uiAudioOptionItem">
+    </item>
+
+    <item
         android:id="@+id/otherFileSelectItem"
         android:title="@string/uiOtherFileSelectItem">
     </item>

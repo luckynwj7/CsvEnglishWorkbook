@@ -43,7 +43,8 @@ public class WorkbookActivity extends AppCompatActivity {
 
     private CustomSQLiteOpenHelper workbookSQLiteOpenHelper; // SQLite DB관리
 
-    private InsertDataDialogManager myInsertDataDialog; // insert시에 작동하는 다이얼로그
+    private InsertDataDialogManager insertDataDialog; // insert시에 작동하는 다이얼로그
+    private AudioOptionDialogManager audioOptionDialog; // 오디오 옵션을 눌렀을 시에 작동하는 다이얼로그
 
     private static boolean workbookActivityOpenFlag; // fileSelectActivity의 생성자 자동 삭제를 방지
     public static boolean GetWorkbookActivityOpenFlag(){
@@ -99,7 +100,8 @@ public class WorkbookActivity extends AppCompatActivity {
         dataTableRowCount = workbookSQLiteOpenHelper.DataTableRowCount();
         ReadCsvFileAndWriteDB();
 
-        myInsertDataDialog = new InsertDataDialogManager(this); // insert 다이얼로그 할당
+        insertDataDialog = new InsertDataDialogManager(this); // insert 다이얼로그 할당
+        audioOptionDialog = new AudioOptionDialogManager(this, ttsManager); // 오디오 옵션 다이얼로그 할당
         updateAlertDialog = new AlertDialogManager(this); // update 다이얼로그 할당
 
 
@@ -380,6 +382,9 @@ public class WorkbookActivity extends AppCompatActivity {
             case R.id.fullSpreadItem:
                 FullSpreadClick();
                 return true;
+            case R.id.audioOptionItem:
+                AudioOptionClick();
+                return true;
             case R.id.otherFileSelectItem:
                 OtherFileSelectClick();
                 return true;
@@ -389,7 +394,7 @@ public class WorkbookActivity extends AppCompatActivity {
     }
 
     private void WordInsertClick(){
-        myInsertDataDialog.Show();
+        insertDataDialog.Show();
     }
 
 
@@ -506,6 +511,10 @@ public class WorkbookActivity extends AppCompatActivity {
         //출처: https://kylblog.tistory.com/22 [ylblog]
     }
 
+    private void AudioOptionClick(){
+        audioOptionDialog.Show();
+    }
+
     private void OtherFileSelectClick(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -560,6 +569,8 @@ public class WorkbookActivity extends AppCompatActivity {
                 updateAlertDialog.SetOkBtnClickFunc(HidingWordUpdateClickListener());
                 updateAlertDialog.ShowAlertDialog();
                 break;
+
+            // 인터넷 검색 관련 컨텍스트 메뉴
             case R.id.findViewingWordDictionaryItem:
                 uriPath+=viewingWordTxtView.getText().toString();
                 findDictionaryIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriPath));
@@ -652,5 +663,6 @@ public class WorkbookActivity extends AppCompatActivity {
     protected void onDestroy() {
         System.out.println("WorkbookActivity 소멸");
         super.onDestroy();
+        ttsManager=null;
     }
 }

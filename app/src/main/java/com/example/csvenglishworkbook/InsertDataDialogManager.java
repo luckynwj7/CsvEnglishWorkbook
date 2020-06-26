@@ -1,14 +1,12 @@
 package com.example.csvenglishworkbook;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class InsertDataDialogManager{
+public class InsertDataDialogManager extends CustomDialogManager {
 
-    private Dialog myDialog;
     private EditText insertDataDialogViewingWordEditTxt;
     public String GetViewingWordTxt(){
         return insertDataDialogViewingWordEditTxt.getText().toString();
@@ -22,8 +20,7 @@ public class InsertDataDialogManager{
     private Button insertDataDialogOKBtn;
 
     public InsertDataDialogManager(Context context){
-        myDialog = new Dialog(context);
-        myDialog.setContentView(R.layout.insert_data_dialog);
+        super(context, R.layout.insert_data_dialog);
 
         insertDataDialogViewingWordEditTxt = myDialog.findViewById(R.id.insertDataDialogViewingWordEditTxt);
         insertDataDialogHidingWordEditTxt = myDialog.findViewById(R.id.insertDataDialogHidingWordEditTxt);

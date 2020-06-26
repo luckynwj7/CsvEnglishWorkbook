@@ -30,6 +30,7 @@
     <string name="uiFullSpreadItem">전부 펼쳐보기</string>
     <string name="uiWordInsertItem">새로운 데이터 삽입</string>
     <string name="uiWordDeleteItem">현재 보고 있는 데이터 삭제</string>
+    <string name="uiAudioOptionItem">오디오 옵션</string>
 
     <string name="uiNoneMemorizeBtn">못외움</string>
     <string name="uiMemorizeBtn">외움</string>
@@ -43,5 +44,13 @@
     <string name="menuUpdateWordItem">수정하기</string>
 
     <string name="menuFindDictionaryItem">사전에서 찾아보기</string>
+
+
+    <string name="uiAudioOptionTitleTxtView">오디오 옵션</string>
+    <string name="uiAudioMuteLabel">음소거 적용&#160;</string>
+    <string name="uiAudioSpeedLabel">속도 : &#160;</string>
+    <string name="uiAudioOptionApplyBtn">적용</string>
+    <string name="uiAudioOptionBasicApplyBtn">기본 값 적용</string>
+    <string name="uiAudioOptionExitBtn">닫기</string>
 
 </resources>
