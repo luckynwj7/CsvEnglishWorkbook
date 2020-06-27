@@ -41,8 +41,12 @@ public class FileSelectActivity extends AppCompatActivity {
         return workbookSQLiteOpenHelper;
     }
     private static CustomSQLiteOpenHelper fileInformationSQLiteOpenHelper;
-    private static CustomSQLiteOpenHelper GetFileInformationSQLiteOpenHelper(){
+    public static CustomSQLiteOpenHelper GetFileInformationSQLiteOpenHelper(){
         return fileInformationSQLiteOpenHelper;
+    }
+    private static CustomSQLiteOpenHelper audioOptionsSQLiteOpenHelper;
+    public static CustomSQLiteOpenHelper GetAudioOptionsSQLiteOpenHelper(){
+        return audioOptionsSQLiteOpenHelper;
     }
 
     private static boolean isNeedReadCsv; // 데이터 테이블을 갱신할 때, csv파일을 새로 읽을 필요가 있는지 검사
@@ -70,6 +74,9 @@ public class FileSelectActivity extends AppCompatActivity {
 
         workbookSQLiteOpenHelper = new CustomSQLiteOpenHelper(this,CustomSQLiteOpenHelper.workbookDBName, 1);
         fileInformationSQLiteOpenHelper = new CustomSQLiteOpenHelper(this,CustomSQLiteOpenHelper.fileInformationDBName, 1);
+        audioOptionsSQLiteOpenHelper = new CustomSQLiteOpenHelper(this, CustomSQLiteOpenHelper.audioOptionsDBName,1);
+        SetInitializeAudioOptionDB(); // 오디오 옵션 DB를 만듬
+
 
 
         fileSearchBtn.setOnClickListener(new Button.OnClickListener(){
@@ -198,5 +205,28 @@ public class FileSelectActivity extends AppCompatActivity {
 
         workbookSQLiteOpenHelper.ExternalDropTable();
         workbookSQLiteOpenHelper.ExternalCreateTable();
+    }
+
+    private void SetInitializeAudioOptionDB(){
+        if(!audioOptionsSQLiteOpenHelper.IsExistTable()){
+            // 관련 DB가 존재하지 않는 경우에만 적용
+            System.out.println("오디오 옵션 DB를 새로 만듬");
+            audioOptionsSQLiteOpenHelper.ExternalCreateTable();
+            audioOptionsSQLiteOpenHelper.InsertData("0","1.0"); // 기본값 삽입
+        }
+        else{
+            System.out.println("오디오 옵션를 가지고 있음. 갯수는 : " + audioOptionsSQLiteOpenHelper.DataTableRowCount());
+            //audioOptionsSQLiteOpenHelper.ShowAllData(); // 디버깅전용
+            if(audioOptionsSQLiteOpenHelper.DataTableRowCount()>1){
+                // 테이블에 있는 row의 갯수가 두 개 이상이면 안됨
+                System.out.println("오디오 옵션의 갯수 오류가 있으므로 테이블 재생성");
+                audioOptionsSQLiteOpenHelper.ExternalDropTable();
+                audioOptionsSQLiteOpenHelper.ExternalCreateTable();
+                audioOptionsSQLiteOpenHelper.InsertData("0","1.0"); // 기본값 삽입
+            }
+        }
+
+
+
     }
 }

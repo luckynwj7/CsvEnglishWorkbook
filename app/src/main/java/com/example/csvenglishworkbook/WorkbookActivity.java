@@ -88,7 +88,6 @@ public class WorkbookActivity extends AppCompatActivity {
         workbookActivity = this;
 
         ttsManager = new TTSManager(this);
-       // myTTS.SetTTSLanguage(".");
 
 
         thisActivityGetIntent = getIntent();

@@ -18,6 +18,7 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
 
     public final static String workbookDBName = "workbookDB";
     public final static String fileInformationDBName = "fileInformationDB";
+    public final static String audioOptionsDBName = "audioOptionsDB";
 
     private String dataTableName;
     private int dbVersion;
@@ -65,6 +66,13 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
 
             columnType.add("TEXT");
             columnType.add("TEXT");
+        }
+        else if(dataTableName.equals(audioOptionsDBName)){
+            columnList.add("MuteFlag");
+            columnList.add("SoundPlaySpeed");
+
+            columnType.add("INTEGER");
+            columnType.add("REAL");
         }
         else{
             System.out.println("유효하지 않은 DB이름");
@@ -166,7 +174,7 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
     }
 
     private void ReNameRowIndex(int deleteNum, SQLiteDatabase writableDB){
-        // rowIndex를 다시 매겨주는 함수
+        // rowIndex를 다시 차례대로(일련되게) 매겨주는 함수
         int maxRowCount = DataTableRowCount();
         for(int rowIndex=deleteNum;rowIndex<=maxRowCount;rowIndex++){
             ContentValues contentValues = new ContentValues();
@@ -189,6 +197,9 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
             }
             else if(columnType.get(index).equals("INTEGER")){
                 resultList.add(cursor.getInt(index));
+            }
+            else if(columnType.get(index).equals("REAL")){
+                resultList.add(cursor.getFloat(index));
             }
         }
         return resultList;
@@ -219,7 +230,17 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
                     result += cursor.getInt(index);
                     result += ":";
                 }
+                else if(columnType.get(index).equals("REAL")){
+                    result += cursor.getFloat(index);
+                    result += ":";
+                }
+                else{
+                    result += "none";
+                    result += ":";
+                }
+
             }
+            result = result.substring(0,result.length()-1);
             result+="\n";
         }
         System.out.println(result);
@@ -250,7 +271,15 @@ public class CustomSQLiteOpenHelper extends SQLiteOpenHelper {
                     catch (Exception e){
                         System.out.println("3열을 삭제하여 적용함");
                     }
-
+                }
+                else if (columnType.get(index).equals("REAL")){
+                    // Float형으로 저장함
+                    try{
+                        contentValues.put(columnList.get(index), Float.valueOf(inputColumn[index]));
+                    }
+                    catch (Exception e){
+                        System.out.println("String을 Float형으로 변환하는 데 실패했음");
+                    }
                 }
             }
         }

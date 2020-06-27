@@ -3,6 +3,7 @@ package com.example.csvenglishworkbook;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.widget.Toast;
+import java.util.ArrayList;
 
 import org.w3c.dom.Text;
 
@@ -18,6 +19,14 @@ public class TTSManager extends TextToSpeech{
         return soundMuteFlag;
     }
     public void SetSoundMute(boolean value){
+        String inputValue = null;
+        if(value == true){
+            inputValue="1";
+        }
+        else{
+            inputValue="0";
+        }
+        FileSelectActivity.GetAudioOptionsSQLiteOpenHelper().UpdateData(1,inputValue, null);
         soundMuteFlag = value;
     }
 
@@ -26,6 +35,8 @@ public class TTSManager extends TextToSpeech{
         return soundPlaySpeed;
     }
     public void SetSoundPlaySpeed(float value){
+        String inputValue = Float.toString(value);
+        FileSelectActivity.GetAudioOptionsSQLiteOpenHelper().UpdateData(1,null, inputValue);
         soundPlaySpeed=value;
     }
 
@@ -33,13 +44,30 @@ public class TTSManager extends TextToSpeech{
         super(context, GetTTSListener());
         this.context = context;
         soundPitch = (float) 0; // 기본값
-        soundPlaySpeed= (float) 1.0; // 기본값
-        soundMuteFlag = false; // 기본값;
+
+        try{
+            // DB에서 값을 가져옴
+            ArrayList<Object> databaseValue = FileSelectActivity.GetAudioOptionsSQLiteOpenHelper().SelectRowAllData(1);
+            soundPlaySpeed= (float) databaseValue.get(2);
+
+            int temp = (int) databaseValue.get(1);
+            if(temp==0){
+                soundMuteFlag = false;
+            }
+            else{
+                soundMuteFlag = true;
+            }
+        }
+        catch(Exception e){
+            System.out.println("DB에서 오디오 옵션값을 가져오는 과정에서 오류가 발생함");
+            soundPlaySpeed=(float)1.0;
+            soundMuteFlag=false;
+        }
 
     }
 
-    public static TextToSpeech.OnInitListener GetTTSListener(){
-        OnInitListener listener = new TextToSpeech.OnInitListener(){
+    private static TextToSpeech.OnInitListener GetTTSListener(){
+        final OnInitListener listener = new TextToSpeech.OnInitListener(){
             @Override
             public void onInit(int i) {
             }
@@ -60,6 +88,7 @@ public class TTSManager extends TextToSpeech{
         this.setSpeechRate(soundPlaySpeed); // 재생속도
 
         if(soundMuteFlag){
+            System.out.println("음소거");
             // 음소거 모드
             return;
         }
