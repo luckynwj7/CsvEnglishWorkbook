@@ -138,11 +138,12 @@ public class CsvReader {
 
                 continue;
             }
-            else if (innerDoubleQuotesFlag==true && inputText.charAt(charIndex)=='"' && inputText.charAt(charIndex+1)==',') {
+            else if (innerDoubleQuotesFlag==true && inputText.charAt(charIndex)=='"' && (inputText.charAt(charIndex+1)==',' || inputText.length()>charIndex) ) {
                 // 나갔음을 의미함
                 innerDoubleQuotesFlag=false;
 
                 inputText = inputText.substring(0,charIndex) + inputText.substring(charIndex+1); //현재 따옴표 삭제
+                System.out.println("최종 : " + inputText);
                 inputTextLength--; // 삭제를 했으니 길이도 줄임
                 charIndex--; // 삭제했으니 반복수도 줄임
 
@@ -189,9 +190,17 @@ public class CsvReader {
         int sentCount = 0;
         ArrayList<String> resultList = new ArrayList<String>();
         for (String text:splitArray) {
-            for(int key:textErrorIndexList.get(sentCount).keySet()) {
-                text = text.substring(0,key) + textErrorIndexList.get(sentCount).get(key) + text.substring(key);
+            System.out.println("스플릿 된 문자열 : " + text); // debug
+            if(text.length() > 0){
+                for(int key:textErrorIndexList.get(sentCount).keySet()) {
+                    text = text.substring(0,key) + textErrorIndexList.get(sentCount).get(key) + text.substring(key);
+                }
             }
+            else{
+                System.out.println("공백 스플릿을 만나서 건너 뜀");
+            }
+
+
             sentCount++;
             resultList.add(text);
         }
